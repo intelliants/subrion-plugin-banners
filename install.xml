@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="banners">
+	<title>Banners</title>
+	<summary>This plugin allows you to display banners on your website pages.</summary>
+	<author>Intelliants LLC</author>
+	<contributor>Intelliants LLC</contributor>
+	<version>3.3.0</version>
+	<date>2015-05-15</date>
+	<compatibility>3.3.0</compatibility>
+
+	<pages>
+		<page name="banner" uniqueurl="banners/index/" readonly="1" service="1" nofollow="1"><![CDATA[ ]]></page>
+	</pages>
+
+	<adminpages>
+		<page name="manage_banners" url="banners/" menus="menu">Banners</page>
+		<page name="banners_config" url="banners/config/" action="config" parent="manage_banners" filename="config">Banners Blocks</page>
+		<page name="banner_plans" url="banners/plans/">Banner Plans</page>
+	</adminpages>
+
+	<actions>
+		<action name="banner_view" url="banners/" icon="list" order="1" pages="manage_banners,banner_plans,banners_config">View</action>
+		<action name="banner_add" url="banners/add/" icon="plus" order="2" pages="manage_banners,banner_plans,banners_config">Add</action>
+		<action name="banner_config" url="banners/config/" icon="tools" order="2" pages="manage_banners,banner_plans,banners_config">Config</action>
+	</actions>
+
+	<phrases>
+		<phrase category="admin" key="add_banner_block">Add block</phrase>
+		<phrase category="admin" key="amount_max_less_displayed">Max. amount can't be less then displayed amount of banners</phrase>
+		<phrase category="admin" key="are_you_sure_to_delete_selected_banners">Are you sure you want to delete selected banners?</phrase>
+		<phrase category="admin" key="are_you_sure_to_delete_selected_banner">Are you sure you want to delete selected banner?</phrase>
+		<phrase category="admin" key="banner_block">Banner block</phrase>
+		<phrase category="admin" key="banner_block_title">Block title</phrase>
+		<phrase category="admin" key="banner_height">Banner height</phrase>
+		<phrase category="admin" key="banner_position_incorrect">The banners' limit for the selected block is exceeded.</phrase>
+		<phrase category="admin" key="banner_width">Banner width</phrase>
+		<phrase category="admin" key="banners_amount">Max. banners in the block</phrase>
+		<phrase category="admin" key="banners_amount_displayed">Amount to display</phrase>
+		<phrase category="admin" key="banners_blocks_manage">Banners Blocks</phrase>
+		<phrase category="admin" key="block_updated">Changes Saved</phrase>
+		<phrase category="admin" key="cant_delete_block">Error deleting the banner block.</phrase>
+		<phrase category="admin" key="clicks">Clicks</phrase>
+		<phrase category="admin" key="manage_banners">Banners</phrase>
+		<phrase category="admin" key="no_banner_blocks">There are no blocks.</phrase>
+		<phrase category="admin" key="please_create_block"><![CDATA[You should create at least one banner block first <a href="%href_to_config%">HERE</a>]]></phrase>
+		<phrase category="admin" key="sure_delete_block"><![CDATA[Are you sure you want to delete this block?]]></phrase>
+		<phrase category="admin" key="unknown_upload">Unknown error during file upload.</phrase>
+
+		<phrase category="common" key="_blank">New Window</phrase>
+		<phrase category="common" key="_parent">Parent Frame</phrase>
+		<phrase category="common" key="_self">Current Window</phrase>
+		<phrase category="common" key="_top">Top Frame</phrase>
+		<phrase category="common" key="add_banner">Add Banner</phrase>
+		<phrase category="common" key="banner">Banner</phrase>
+		<phrase category="common" key="banner_added">Banner added.</phrase>
+		<phrase category="common" key="banner_alt">Banner Alternative Text</phrase>
+		<phrase category="common" key="banner_email">Your e-mail</phrase>
+		<phrase category="common" key="banner_email_incorrect">As far as you are not registered please input your email address to which you'd like to receive any updates on your banner.</phrase>
+		<phrase category="common" key="banner_img_url">Banner image URL</phrase>
+		<phrase category="common" key="banner_title">Banner Title</phrase>
+		<phrase category="common" key="banner_title_is_empty">Banner Title is empty.</phrase>
+		<phrase category="common" key="banner_type">Banner Type</phrase>
+		<phrase category="common" key="banner_type_incorrect">Banner type is incorrect.</phrase>
+		<phrase category="common" key="banner_url">Banner URL</phrase>
+		<phrase category="common" key="banners">Banners</phrase>
+		<phrase category="common" key="block">Block</phrase>
+		<phrase category="common" key="bottom">Bottom</phrase>
+		<phrase category="common" key="center">Center</phrase>
+		<phrase category="common" key="content">Content</phrase>
+		<phrase category="common" key="cron_for_expiration_b">Cron for changing a banner after payment is expired</phrase>
+		<phrase category="common" key="banner_url_incorrect">Banner URL is incorrect.</phrase>
+		<phrase category="common" key="click_to_add_banner">Click here to add Your Banner</phrase>
+		<phrase category="common" key="choose_file_upload">Choose a file to upload</phrase>
+		<phrase category="common" key="edit_banner">Edit Banner</phrase>
+		<phrase category="common" key="html">HTML or JS</phrase>
+		<phrase category="common" key="image_height">Image Height</phrase>
+		<phrase category="common" key="image_width">Image Width</phrase>
+		<phrase category="common" key="impressions">Impressions</phrase>
+		<phrase category="common" key="include_subcats">include subcategories</phrase>
+		<phrase category="common" key="left">Left</phrase>
+		<phrase category="common" key="local">Local (image or flash)</phrase>
+		<phrase category="common" key="manage_banner_plans">Banner Plans</phrase>
+		<phrase category="common" key="paypal_not_installed">You need install any payment plugin before create a banners plan.</phrase>
+		<phrase category="common" key="remote">Remote</phrase>
+		<phrase category="common" key="remote_url_incorrect">You must specify an URL to the remote banner.</phrase>
+		<phrase category="common" key="right">Right</phrase>
+		<phrase category="common" key="set_status_after_submit">Set banner status after submit as</phrase>
+		<phrase category="common" key="shows">Shows</phrase>
+		<phrase category="common" key="suggest_banner">Suggest Banner</phrase>
+		<phrase category="common" key="target">Target</phrase>
+		<phrase category="common" key="text">Plain text</phrase>
+		<phrase category="common" key="top">Top</phrase>
+		<phrase category="common" key="topbanner">Top Banner</phrase>
+		<phrase category="common" key="uploads_not_writable">Uploads folder is not writable. Your customers will not be able to submit Local(image,flash) banners.</phrase>
+		<phrase category="common" key="use_orig_params">Use original parameters</phrase>
+		<phrase category="common" key="user1">User1</phrase>
+		<phrase category="common" key="user2">User2</phrase>
+		<phrase category="common" key="verybottom">Very Bottom</phrase>
+		<phrase category="common" key="verytop">Very Top</phrase>
+
+		<phrase category="page" key="page_title_my_banners">My Banners</phrase>
+	</phrases>
+
+	<configgroup name="banners">Banners Configuration</configgroup>
+
+	<config group="banners" name="banner_divider" type="divider" description="General Configuration">General Configuration</config>
+	<config group="banners" name="banner_folder" type="text" description="Banners folder in uploads">banners</config>
+	<config group="banners" name="banner_prefix" type="text" description="Banners prefix">banner_</config>
+	<config group="email_templates" name="banners_payment_subjects" type="divider" value="Banners Payment Notification for Admin">Banners Payment Notification for Admin</config>
+	<config group="email_templates" name="banners_payment" type="radio" values="1,0" description="Email sending">1</config>
+	<config group="email_templates" name="banners_payment_subject" type="text" description="Subject">Banner was submitted to {own_site}</config>
+	<config group="email_templates" name="banners_payment_body" type="textarea" description="Banners Body"><![CDATA[
+Dear {admin_name},
+
+Banner has been submitted to {own_site} Directory. Please check it.
+
+These are the attributes of a banner:
+Title: {item_title}
+URL: {item_url}
+Email: {item_email}
+Banner Plan: {item_plan}
+
+______________________________
+Thank you,
+{own_site} Administration Team
+{own_url}
+{own_email}	]]>
+	</config>
+
+	<hooks>
+		<hook name="phpSmartyAfterFuncInit" page_type="front">
+		<![CDATA[
+if (iaView::REQUEST_HTML == $iaView->getRequestType())
+{
+	$iaBanner = $iaCore->factoryPlugin('banners', iaCore::FRONT, 'banner');
+	$iaSmarty->registerPlugin(iaSmarty::PLUGIN_FUNCTION, 'bannerImpressionsCount', array('iaBanner', 'impressionsCount'));
+
+	$iaView->assign('banners_displayed', $iaBanner->getAmountDisplayed());
+	$iaView->assign('banners', $iaBanner->getBanners());
+}
+		]]>
+		</hook>
+	</hooks>
+
+	<install>
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}banner_clicks` (
+	`id` int(8) unsigned NOT NULL auto_increment,
+	`banner_id` int(8) unsigned NOT NULL,
+	`ip` bigint(12) NOT NULL,
+	`date` date NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `ip` (`ip`, `date`),
+	KEY `BANNER` (`banner_id`)
+) {mysql_version};
+		]]>
+		</sql>
+
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}banners` (
+	`id` int(8) unsigned NOT NULL auto_increment,
+	`member_id` int(8) NOT NULL,
+	`title` tinytext NOT NULL,
+	`url` varchar(150) NOT NULL,
+	`alt` tinytext NOT NULL,
+	`email` varchar(50) NOT NULL,
+	`image` varchar(150) NOT NULL,
+	`status` enum('inactive','active','approval') NOT NULL default 'active',
+	`date_added` date NOT NULL,
+	`showed` int(10) unsigned NOT NULL,
+	`clicked` int(10) unsigned NOT NULL,
+	`type` varchar(20) NOT NULL,
+	`content` text NOT NULL,
+	`planetext_content` text NOT NULL,
+	`position` varchar(20) NOT NULL,
+	`target` varchar(25) NOT NULL,
+	`width` varchar(10) NOT NULL,
+	`height` varchar(10) NOT NULL,
+	`no_follow` tinyint(1) unsigned NOT NULL,
+	`plan_id` smallint(5) unsigned NOT NULL,
+	`sponsored_start` timestamp NOT NULL,
+	`transaction_id` int(10) unsigned NOT NULL,
+	PRIMARY KEY (`id`),
+	KEY `POSITION` (`position`),
+	KEY `STATUS` (`status`)
+) {mysql_version};
+		]]>
+		</sql>
+
+		<sql>
+			<![CDATA[
+CREATE TABLE `{prefix}banners_block_options` (
+	`id` mediumint(7) unsigned NOT NULL auto_increment,
+	`block_id` smallint(5) unsigned NOT NULL,
+	`amount` smallint(5) unsigned NOT NULL,
+	`amount_displayed` smallint(5) unsigned NOT NULL,
+	`width` mediumint(6) unsigned NOT NULL,
+	`height` mediumint(6) unsigned NOT NULL,
+	PRIMARY KEY ( `id` )
+) {mysql_version};
+		]]>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banners`;]]></sql>
+		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banner_clicks`;]]></sql>
+		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banners_block_options`;]]></sql>
+	</uninstall>
+
+    <upgrade>
+        <sql version="3.2.0">
+            <![CDATA[
+ALTER TABLE `{prefix}banners` CHANGE `added` `date_added` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00';
+			]]>
+        </sql>
+    </upgrade>
+</plugin>
