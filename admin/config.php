@@ -87,7 +87,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 			'sticky' => 1,
 			'title' => $title,
 			'external' => 1,
-			'filename' => 'plugin:banners:render-banners.tpl',
+			'filename' => 'extra:banners/render-banners',
 			'extras' => 'banners'
 		);
 

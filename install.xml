@@ -4,9 +4,9 @@
 	<summary>This plugin allows you to display banners on your website pages.</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>3.3.0</version>
-	<date>2015-05-15</date>
-	<compatibility>3.3.0</compatibility>
+	<version>4.0.0</version>
+	<date>2015-12-01</date>
+	<compatibility>4.0</compatibility>
 
 	<pages>
 		<page name="banner" uniqueurl="banners/index/" readonly="1" service="1" nofollow="1"><![CDATA[ ]]></page>
@@ -210,11 +210,11 @@ CREATE TABLE `{prefix}banners_block_options` (
 		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banners_block_options`;]]></sql>
 	</uninstall>
 
-    <upgrade>
-        <sql version="3.2.0">
-            <![CDATA[
+	<upgrade>
+		<sql version="3.2.0">
+			<![CDATA[
 ALTER TABLE `{prefix}banners` CHANGE `added` `date_added` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00';
 			]]>
-        </sql>
-    </upgrade>
+		</sql>
+	</upgrade>
 </plugin>

@@ -24,11 +24,11 @@ intelli.banners = function()
 				sortable: true,
 				width: 85
 			},{
-                header: _t('position'),
-                dataIndex: 'banner_position',
-                sortable: true,
-                width: 85
-            },{
+				header: _t('position'),
+				dataIndex: 'banner_position',
+				sortable: true,
+				width: 85
+			},{
 				header: _t('type'),
 				dataIndex: 'type',
 				width: 130,
@@ -44,14 +44,14 @@ intelli.banners = function()
 				sortable: true,
 				width: 80
 			},{
-                header: _t('edit') + ' ' + _t('block'),
-                custom: 'edit_block',
-                index: true,
-                href: intelli.config.admin_url+'/blocks/edit/?id={value}',
-                icon: 'manage-grid-ico.png',
-                hideable: false,
-                menuDisabled: true,
-                title: _t('edit') + ' ' + _t('block')
+				header: _t('edit') + ' ' + _t('block'),
+				custom: 'edit_block',
+				index: true,
+				href: intelli.config.admin_url+'/blocks/edit/?id={value}',
+				icon: 'manage-grid-ico.png',
+				hideable: false,
+				menuDisabled: true,
+				title: _t('edit') + ' ' + _t('block')
 			},{
 				custom: 'edit',
 				redirect: intelli.config.admin_url+'/banners/edit/?id=',

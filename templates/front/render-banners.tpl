@@ -1,10 +1,10 @@
 {if isset($banners[$block.id]) && is_array($banners[$block.id]) && $banners[$block.id]}
-<div style="text-align: center;">
+<div class="text-center">
 	{assign var='folder' value=$core.config.banner_folder|replace:'/':''|cat:'/'}
 	{capture}{$banners[$block.id]|shuffle}{/capture}
 	{section name=banner loop=$banners[$block.id] max=$banners_displayed[$block.id]}
 		{assign 'banner' $banners[$block.id][banner]}
-		<div style="text-align: center; padding-bottom: 5px;">
+		<div class="p-b">
 			{if $banner.type == 'image'}
 			<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}"{if $banner.no_follow} rel="nofollow"{/if}>
 				{printImage imgfile=$folder|cat:$banner.image title=$banner.alt fullimage=true}
