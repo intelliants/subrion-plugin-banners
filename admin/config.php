@@ -132,11 +132,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 		iaUtil::go_to(IA_ADMIN_URL . IA_CURRENT_PLUGIN . '/config/#position-' . $position);
 	}
 
-	$positionsList = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION, null, null, null, 'positions');
-	foreach ($positionsList as $position)
-	{
-		$positions[] = $position['name'];
-	}
+	$positions = $iaDb->onefield('name', '`menu` = 0', null, null, 'positions');
 
 	$iaView->assign('positions', $positions);
 	$blocks = array();

@@ -82,7 +82,7 @@ final class iaBanner extends abstractPlugin
 			'ip' => $ipAddress
 		);
 		$this->iaDb->insert($row, array('date' => iaDb::FUNCTION_NOW), 'banner_clicks');
-		$this->iaDb->query("UPDATE `" . self::getTable(true) . "` SET `clicked` = `clicked` + 1 WHERE `id`='" . $bId . "'");
+		$this->iaDb->query("UPDATE `" . self::getTable(true) . "` SET `clicked` = `clicked` + 1 WHERE `id`='" . $bannerId . "'");
 
 		return true;
 	}

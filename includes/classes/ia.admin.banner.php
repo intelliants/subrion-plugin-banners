@@ -155,7 +155,7 @@ final class iaBanner extends abstractPlugin
 		}
 
 		$sql =
-		"SELECT SQL_CALC_FOUND_ROWS bn.*, bl.title `position_title`, bl.`position` `banner_position`, bl.`id` as `edit_block`, bn.`id` as `update`, 1 as `delete`
+		"SELECT SQL_CALC_FOUND_ROWS bn.*, bl.name `position_title`, bl.`position` `banner_position`, bl.`id` as `edit_block`, bn.`id` as `update`, 1 as `delete`
 		FROM `{$this->iaDb->prefix}banners` bn
 		LEFT JOIN `{$this->iaDb->prefix}blocks` bl
 			ON bn.`position` = bl.`id` " .

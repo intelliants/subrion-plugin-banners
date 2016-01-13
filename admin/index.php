@@ -119,6 +119,9 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			{
 				return iaView::errorPage(iaView::ERROR_NOT_FOUND);
 			}
+			$iaUsers = $iaCore->factory('users');
+
+			$banner['owner'] = $iaUsers->getInfo($banner['member_id'])['fullname'];
 		}
 		else
 		{
@@ -137,7 +140,8 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				'no_follow' => 0,
 				'status' => iaCore::STATUS_ACTIVE,
 				'params' => 0,
-				'id' => 0
+				'id' => 0,
+				'owner' => iaUsers::getIdentity()->fullname,
 			);
 		}
 
@@ -158,6 +162,7 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			'no_follow' => iaUtil::checkPostParam('no_follow', $banner),
 			'status' => iaUtil::checkPostParam('status', $banner),
 			'params' => iaUtil::checkPostParam('params', $banner),
+			'owner' => iaUtil::checkPostParam('owner', $banner),
 		);
 
 		if (isset($_POST['save']))
@@ -187,7 +192,8 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				$banner['planetext_content'] = utf8_bad_replace($banner['planetext_content']);
 			}
 
-			$banner['url'] = !strstr($banner['url'], "http://") ? "http://" . $banner['url'] : $banner['url'];
+			$banner['url'] = (strstr($banner['url'], 'http://') || strstr($banner['url'], 'https://'))
+				? $banner['url'] : 'http://' . $banner['url'];
 			$banner['status'] = array_key_exists($banner['status'], $statuses) ? $banner['status'] : 'inactive';
 			$banner['type'] = array_key_exists($banner['type'], $types) ? $banner['type'] : false;
 			$banner['folder'] = trim($iaCore->get('banner_folder'), ' /') . '/';
@@ -209,6 +215,20 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			if ($banner['params'])
 			{
 				$banner['image_width'] = $banner['image_height'] = 0;
+			}
+
+			if (!empty($banner['owner']))
+			{
+				if ($memberId = $iaDb->one_bind('id', '`username` = :name OR `fullname` = :name', array('name' => iaSanitize::sql($banner['owner'])), iaUsers::getTable()))
+				{
+					$banner['member_id'] = $memberId;
+					unset($banner['owner']);
+				}
+				else
+				{
+					$error = true;
+					$messages[] = iaLanguage::get('incorrect_owner_specified');
+				}
 			}
 
 			if (!$banner['position'])
@@ -309,7 +329,7 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 						$iaCore->set('banners_exist', '', true);
 					}
 
-					$messages[] = iaLanguage::get('changes_saved');
+					$messages[] = iaLanguage::get('saved');
 				}
 				else
 				{
@@ -351,14 +371,13 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				$iaView->setMessages($messages, ($error ? iaView::ERROR : iaView::SUCCESS));
 			}
 		}
+		$banner['statuses'] = $statuses;
 		$options = array('list' => 'go_to_list', 'add' => 'add_another_one', 'stay' => 'stay_here');
 		$iaView->assign('goto', $options);
-
-		$iaView->assign('banner', $banner);
+		$iaView->assign('item', $banner);
 		$iaView->assign('targets', $targets);
 		$iaView->assign('types', $types);
 		$iaView->assign('positions', $positions);
-		$iaView->assign('statuses', $statuses);
 	}
 	else
 	{

@@ -10,7 +10,7 @@ Ext.onReady(function()
 				'selection',
 				'expander',
 				{name: 'title', title: _t('title'), width: 2, editor: 'text'},
-				{name: 'position_title', title: _t('block'), width: 100},
+				{name: 'position_title', title: _t('block'), width: 180},
 				{name: 'banner_position', title: _t('position'), width: 100},
 				{name: 'type', title: _t('type'), width: 130},
 				{name: 'showed', title: _t('impressions'), width: 130},

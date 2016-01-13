@@ -1,5 +1,5 @@
 <div class="wrap-list">
-	{foreach from=$positions item="position" name="positions_foreach"}
+	{foreach $positions as $position}
 		<fieldset class="wrap-group" id="position-{$position}">
 			<div class="wrap-group-heading">
 				<h4>{$position}</h4>
@@ -7,7 +7,7 @@
 			<a class="btn btn-primary" id="block_{$position}" href="{$smarty.const.IA_SELF}?action=add_block&pos={$position}&num={if isset($banner_blocks.$position)}{$banner_blocks.$position|@count}{/if}"><i class="i-plus-alt"></i> {lang key="add_banner_block"}</a>
 			{if isset($banner_blocks.$position)}
 				<div class="plates-list sap-form">
-					{foreach from=$banner_blocks.$position item="block" name="block"}
+					{foreach $banner_blocks.$position as $block}
 						<div class="banner-block col col-lg-2" id="block_{$block.id}">
 							<h4>
 								{if $block.title}{$block.title}{else}{lang key='without_title'}{/if}

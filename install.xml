@@ -4,8 +4,8 @@
 	<summary>This plugin allows you to display banners on your website pages.</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.0.0</version>
-	<date>2015-12-01</date>
+	<version>4.0.1</version>
+	<date>2016-01-13</date>
 	<compatibility>4.0</compatibility>
 
 	<pages>
@@ -37,6 +37,7 @@
 		<phrase category="admin" key="banners_amount">Max. banners in the block</phrase>
 		<phrase category="admin" key="banners_amount_displayed">Amount to display</phrase>
 		<phrase category="admin" key="banners_blocks_manage">Banners Blocks</phrase>
+		<phrase category="admin" key="banner_image">Banner Image</phrase>
 		<phrase category="admin" key="block_updated">Changes Saved</phrase>
 		<phrase category="admin" key="cant_delete_block">Error deleting the banner block.</phrase>
 		<phrase category="admin" key="clicks">Clicks</phrase>
