@@ -23,7 +23,7 @@ $(function()
 		}
 	});
 
-	$(".save-block").click(function (){
+	$(".save-block").click(function() {
 		var block = $(this).parents(".banner-block");
 		var block_id = block.attr('id').split('_')[1];
 
@@ -31,9 +31,10 @@ $(function()
 		var amount_displayed = block.find('input.amount_displayed').val();
 		var width = block.find('input.width').val();
 		var height = block.find('input.height').val();
+		var slider = block.find('input#slider').val();
 
 		$.get(intelli.config.admin_url + '/banners/config/edit.json',
-		{ action: 'save_block', id: block_id, amount: amount, amount_displayed: amount_displayed, width: width, height: height },
+		{ action: 'save_block', id: block_id, amount: amount, amount_displayed: amount_displayed, width: width, height: height, slider: slider },
 		function(data)
 		{
 			if (!data.error)
@@ -50,7 +51,7 @@ $(function()
 	var add_block_win = null;
 	var link_to_add = null;
 	var add_block_tpl = null;
-	
+
 	$(".add-banner-block").click(function()
 	{
 		link_to_add = $(this).attr("href");

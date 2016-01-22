@@ -1,0 +1,9 @@
+[id^="block_banner"] .owl-carousel .owl-item {
+	text-align: center;
+}
+
+[id^="block_banner"]  .owl-carousel .owl-item img {
+	max-width: 100%;
+	width: auto;
+	display: inline-block;
+}

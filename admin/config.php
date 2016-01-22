@@ -60,7 +60,8 @@ if (iaView::REQUEST_JSON == $iaView->getRequestType())
 			'amount' => isset($_GET['amount']) ? intval($_GET['amount']) : 0,
 			'amount_displayed' => isset($_GET['amount_displayed']) ? intval($_GET['amount_displayed']) : 0,
 			'width' => isset($_GET['width']) ? intval($_GET['width']) : 0,
-			'height' => isset($_GET['height']) ? intval($_GET['height']) : 0
+			'height' => isset($_GET['height']) ? intval($_GET['height']) : 0,
+			'slider' => isset($_GET['slider']) ? intval($_GET['slider']) : 0
 		);
 
 		if ($fields['amount'] < $fields['amount_displayed'])

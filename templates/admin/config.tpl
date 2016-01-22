@@ -15,6 +15,8 @@
 									<i class="i-edit"></i>
 								</a>
 							</h4>
+
+							<p><span class="text-small text-muted">{lang key='use_slider'}:</span>{html_radio_switcher value=$blocks_options[$block.id].slider|default:0 name='slider'}</p>
 							<p><span class="text-small text-muted">{lang key='banners_amount'}:</span><span class="right"><input class="amount" type="text" value="{$blocks_options[$block.id].amount}" name="num_banners_{$block.id}"></span></p>
 							<p><span class="text-small text-muted">{lang key='banners_amount_displayed'}:</span><span class="right"><input class="amount_displayed" type="text" value="{$blocks_options[$block.id].amount_displayed}" name="amount_banners_displayed_{$block.id}"></span></p>
 							<p><span class="text-small text-muted">{lang key='banner_width'}:</span><span class="right"><input class="width" type="text" value="{$blocks_options[$block.id].width}" name="banner_width_{$block.id}"></span></p>

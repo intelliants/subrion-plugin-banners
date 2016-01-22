@@ -308,11 +308,13 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				$messages[] = iaLanguage::get('remote_url_incorrect');
 			}
 
+			/*
 			if (!iaValidate::isUrl($banner['url']) && 'html' != $banner['type'])
 			{
 				$error = true;
 				$messages = iaLanguage::get('banner_url_incorrect');
 			}
+			*/
 
 			if (!$error)
 			{

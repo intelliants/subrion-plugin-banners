@@ -35,6 +35,7 @@
 		<phrase category="admin" key="banner_position_incorrect">The banners' limit for the selected block is exceeded.</phrase>
 		<phrase category="admin" key="banner_width">Banner width</phrase>
 		<phrase category="admin" key="banners_amount">Max. banners in the block</phrase>
+		<phrase category="admin" key="use_slider">Use Slider</phrase>
 		<phrase category="admin" key="banners_amount_displayed">Amount to display</phrase>
 		<phrase category="admin" key="banners_blocks_manage">Banners Blocks</phrase>
 		<phrase category="admin" key="banner_image">Banner Image</phrase>
@@ -135,7 +136,9 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 {
 	$iaBanner = $iaCore->factoryPlugin('banners', iaCore::FRONT, 'banner');
 	$iaSmarty->registerPlugin(iaSmarty::PLUGIN_FUNCTION, 'bannerImpressionsCount', array('iaBanner', 'impressionsCount'));
+	$banners_slider = $iaDb->keyvalue(array('block_id', 'slider'), null, iaBanner::getTableBlockOptions());
 
+	$iaView->assign('banners_slider', $banners_slider);
 	$iaView->assign('banners_displayed', $iaBanner->getAmountDisplayed());
 	$iaView->assign('banners', $iaBanner->getBanners());
 }
@@ -195,6 +198,7 @@ CREATE TABLE `{prefix}banners` (
 CREATE TABLE `{prefix}banners_block_options` (
 	`id` mediumint(7) unsigned NOT NULL auto_increment,
 	`block_id` smallint(5) unsigned NOT NULL,
+	`slider` tinyint(1) unsigned NOT NULL,
 	`amount` smallint(5) unsigned NOT NULL,
 	`amount_displayed` smallint(5) unsigned NOT NULL,
 	`width` mediumint(6) unsigned NOT NULL,
