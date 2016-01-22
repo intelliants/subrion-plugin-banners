@@ -1,36 +1,44 @@
-div.banner-block
-{
+.banner-block {
 	padding: 10px;
 	padding-left: 10px !important;
-	margin:3px;
-	background:#f8f8f8;
-	border-bottom:1px solid #e5e5e5;
+	margin: 20px 20px 20px 0;
+	background: #f8f8f8;
+	border-bottom: 1px solid #e5e5e5;
 }
-div.banner-block.even
-{
-	background:#ecf7ff;
-	border-bottom:1px solid #d0ebff;
+
+.banner-block .row {
+	margin-bottom: 0 !important;
 }
-div.banner-block div
-{
-	padding:3px 0;
+
+.banner-block .make-switch {
+	margin-top: -12px;
+	margin-left: 10px;
 }
-div.banner-block span
-{
+
+.banner-block.even {
+	background: #ecf7ff;
+	border-bottom: 1px solid #d0ebff;
+}
+
+.banner-block div {
+	padding: 3px 0;
+}
+
+.banner-block p > span {
 	text-align: left;
 	width: 170px;
 	display: table-cell;
 }
-div.banner-block span.right
-{
+
+.banner-block span.right {
 	text-align:right;
 	width:auto;
 }
-div.banner-block input.common[type="text"]
-{
+
+.banner-block input.common[type="text"] {
 	width:40px;
 }
-div.banner-block p.actions
-{
+
+.banner-block p.actions {
 	margin-top: 20px;
 }
