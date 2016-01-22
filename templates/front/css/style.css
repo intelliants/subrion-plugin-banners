@@ -2,8 +2,13 @@
 	text-align: center;
 }
 
-[id^="block_banner"]  .owl-carousel .owl-item img {
+[id^="block_banner"] .owl-carousel .owl-item img {
 	max-width: 100%;
 	width: auto;
 	display: inline-block;
+}
+
+[id^="block_banner"] .owl-theme .owl-nav [class*='owl-'] {
+	padding-left: 12px;
+	padding-right: 12px;
 }

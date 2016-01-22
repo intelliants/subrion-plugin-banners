@@ -58,6 +58,8 @@ $(function() {
 	});
 });
 		{/ia_add_js}
+
+		{ia_print_js files='_IA_TPL_owl.carousel.min'}
 	{else}
 		<div class="text-center">
 			{assign var='folder' value=$core.config.banner_folder|replace:'/':''|cat:'/'}

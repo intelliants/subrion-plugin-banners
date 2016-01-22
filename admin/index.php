@@ -121,7 +121,8 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			}
 			$iaUsers = $iaCore->factory('users');
 
-			$banner['owner'] = $iaUsers->getInfo($banner['member_id'])['fullname'];
+			$member_id = $iaUsers->getInfo($banner['member_id']);
+			$banner['owner'] = $member_id['fullname'];
 		}
 		else
 		{
