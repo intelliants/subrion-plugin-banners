@@ -240,66 +240,6 @@ final class iaBanner extends abstractModuleAdmin
 
 			$banner['image'] = $imageEntry['path'] . '|' . $imageEntry['file'];
 		}
-
-//		$iaPicture = $this->iaCore->factory('picture');
-//
-//		if (file_exists(IA_HOME . "uploads" . IA_DS . $banner['folder'] . $banner['image']) && !is_uploaded_file($_FILES['uploadfile']['tmp_name']))
-//		{
-//			$bannerUrl = IA_HOME . 'uploads' . IA_DS . $banner['folder'] . str_replace('.', '~.', $banner['image']);
-//			//just resize existing image
-//			list($iwidth, $iheight) = getimagesize($bannerUrl);
-//
-//			if (!$banner['params'] && ($iwidth != $banner['width'] || $iheight != $banner['height']))
-//			{
-//				$imgtypes = array_flip($this->_imgTypes);
-//				$ext = pathinfo($banner['image'], PATHINFO_EXTENSION);
-//				$image = array(
-//					"type" => $imgtypes[$ext],
-//					"tmp_name" => $bannerUrl,
-//				);
-//
-//				$bannerImage = array(
-//					'image_width' => $banner['width'],
-//					'image_height' => $banner['height'],
-//					'resize_mode' => 'fit'
-//				);
-//
-//				$image = $iaPicture->processImage($image, $banner['folder'], str_replace('.' . $ext, '', $banner['image']), $bannerImage);
-//				$banner['image'] = str_replace($banner['folder'], '', $image);
-//			}
-//		}
-//		elseif (isset($_FILES['uploadfile']['tmp_name']) && $_FILES['uploadfile']['tmp_name'])
-//		{
-//			/**
-//			 * New image uploaded
-//			 */
-//			if (!empty($banner['image']) && file_exists(IA_HOME . "uploads" . IA_DS . $banner['folder'] . $banner['image']))
-//			{
-//				/**
-//				 * Delete existing image
-//				 */
-//				unlink(IA_HOME . 'uploads' . IA_DS . $banner['folder'] . IA_DS . $banner['image']);
-//			}
-//			/**
-//			 * TODO: do not use asido if no need to resize
-//			 */
-//
-//			if (0 == $banner['width'] || 0 == $banner['height'])
-//			{
-//				list($banner['width'], $banner['height']) = getimagesize($_FILES['uploadfile']['tmp_name']);
-//			}
-//
-//			$bannerImage = array(
-//				'image_width' => $banner['width'],
-//				'image_height' => $banner['height'],
-//				'resize_mode' => 'fit'
-//			);
-//
-//			$image = $iaPicture->processImage($_FILES['uploadfile'], $banner['folder'], iaUtil::generateToken(), $bannerImage);
-//			$banner['image'] = str_replace($banner['folder'], '', $image);
-//		}
-//
-//		list($banner['width'], $banner['height']) = getimagesize(IA_HOME . 'uploads' . IA_DS . $banner['folder'] . $banner['image']);
 	}
 
 	private function _updateFlash (&$banner)
