@@ -107,12 +107,11 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 			'status' => iaCore::STATUS_ACTIVE,
 			'header' => 1,
 			'collapsible' => 1,
-			'multilingual' => 1,
 			'sticky' => 1,
 			'title' => $title,
 			'external' => 1,
 			'filename' => 'extra:banners/render-banners',
-			'extras' => 'banners'
+			'module' => 'banners'
 		);
 
 		$id = $iaBlock->insert($block);
@@ -120,8 +119,8 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 		$fields = array(
 			'amount' => 1,
 			'amount_displayed' => 1,
-			'width' => 50,
-			'height' => 50,
+			'width' => 360,
+			'height' => 360,
 			'block_id' => $id,
 		);
 
@@ -130,7 +129,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 		$iaDb->resetTable();
 
 		iaCore::util();
-		iaUtil::go_to(IA_ADMIN_URL . IA_CURRENT_PLUGIN . '/config/#position-' . $position);
+		iaUtil::go_to(IA_ADMIN_URL . IA_CURRENT_MODULE . '/config/#position-' . $position);
 	}
 
 	$positions = $iaDb->onefield('name', '`menu` = 0', null, null, 'positions');
@@ -141,7 +140,19 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 	$iaDb->setTable('blocks');
 	foreach ($positions as $pos)
 	{
-		$b = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION, "`position` = '{$pos}' AND `extras` = 'banners'");
+		$sql = 'SELECT b.*, l.`value` AS `title` FROM `:prefix:table_blocks` b '
+			 . 'LEFT JOIN `:prefix:table_language` l ON (l.`key` = CONCAT("block_title_", b.`id`)) '
+			 . 'WHERE b.`position` = ":postition" AND b.`module` = ":module"';
+
+		$sql = iaDb::printf($sql, array(
+				'prefix' => $this->iaDb->prefix,
+				'table_blocks' => 'blocks',
+				'table_language' => 'language',
+				'postition' => $pos,
+				'module' => 'banners'
+		));
+
+		$b = $iaDb->getAll($sql);
 		if ($b)
 		{
 			$blocks[$pos] = $b;

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<plugin name="banners">
+<module type="plugin" name="banners">
 	<title>Banners</title>
 	<summary>This plugin allows you to display banners on your website pages.</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.0.1</version>
-	<date>2016-01-22</date>
-	<compatibility>4.0</compatibility>
+	<version>4.1.0</version>
+	<date>2016-03-03</date>
+	<compatibility>4.1</compatibility>
 
 	<pages>
 		<page name="banner" uniqueurl="banners/index/" readonly="1" service="1" nofollow="1"><![CDATA[ ]]></page>
@@ -222,4 +222,4 @@ ALTER TABLE `{prefix}banners` CHANGE `added` `date_added` DATETIME NOT NULL DEFA
 			]]>
 		</sql>
 	</upgrade>
-</plugin>
+</module>

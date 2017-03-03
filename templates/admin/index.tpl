@@ -14,7 +14,7 @@
 					<div class="col col-lg-4" id="bannerThumbnail" style="display: none;">
 						<div class="thumbnail thumbnail-single">
 							{if $item.type == 'image'}
-								{ia_print_img fl=$item.image folder=$folder full='true' ups='true'}
+								{ia_image file=$item.image title=$item.title}
 							{elseif $item.type == 'flash' and $item.image|substr:-3 == 'swf'}
 								<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,29,0" width="{$item.width}" height="{$item.height}">
 									<param name="movie" value="{ia_print_img fl=$item.image ups='true'}">
@@ -61,14 +61,14 @@
 		</div>
 		
 		<div class="row" id="uploadcontainer" style="display: none;">
-			<label class="col col-lg-2 control-label" for="file">{lang key='choose_file_upload'}</label>
+			<label class="col col-lg-2 control-label" for="file">{lang key='choose_file_upload'} {lang key='field_required'}</label>
 			<div class="col col-lg-4">
 				{ia_html_file name="uploadfile" id='file'}
 			</div>
 		</div>
 
 		<div class="row">
-			<label class="col col-lg-2 control-label" for="banner-title">{lang key='banner_title'}</label>
+			<label class="col col-lg-2 control-label" for="banner-title">{lang key='banner_title'} {lang key='field_required'}</label>
 			<div class="col col-lg-4">
 				<input type="text" name="title" value="{$item.title}" id="banner-title">
 			</div>
@@ -151,4 +151,4 @@
 	{include file='grid.tpl'}
 {/if}
 
-{ia_print_js files='_IA_URL_plugins/banners/js/admin/banners'}
+{ia_print_js files='_IA_URL_modules/banners/js/admin/banners'}

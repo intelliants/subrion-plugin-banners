@@ -24,7 +24,7 @@
  *
  ******************************************************************************/
 
-final class iaBanner extends abstractPlugin
+final class iaBanner extends abstractModuleFront
 {
 	protected static $_table = 'banners';
 

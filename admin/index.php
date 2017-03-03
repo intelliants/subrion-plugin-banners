@@ -92,13 +92,15 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 
 		$iaDb->setTable('blocks');
 		$sql = "
-			SELECT bl.*, COUNT(bn.`id`) as bn_col, opt.`amount` as bn_max, opt.`width`, opt.`height`
+			SELECT bl.*, l.`value` as title, COUNT(bn.`id`) as bn_col, opt.`amount` as bn_max, opt.`width`, opt.`height`
 			  FROM `{$iaDb->prefix}blocks` as bl
 			LEFT JOIN `{$iaDb->prefix}banners_block_options` as opt
 			  ON bl.`id` = opt.`block_id`
 			LEFT JOIN `{$iaDb->prefix}banners` as bn
 			  ON bn.`position` = bl.`id`
-			WHERE bl.`extras` = 'banners'
+			LEFT JOIN `{$iaDb->prefix}language` l
+			  ON (l.`key` = CONCAT(\"block_title_\", bl.`id`))
+			WHERE bl.`module` = 'banners'
 			GROUP BY bl.`id`
 		";
 		$positions = $iaDb->getAll($sql);

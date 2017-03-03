@@ -8,10 +8,10 @@
 					{if $banner.type == 'image'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
 							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}"{if $banner.no_follow} rel="nofollow"{/if}>
-								{printImage imgfile=$folder|cat:$banner.image title=$banner.alt fullimage=true}
+								{ia_image file=$banner.image title=$banner.title type='large'}
 							</a>
 						{else}
-							{printImage imgfile=$folder|cat:$banner.image title=$banner.alt fullimage=true}
+							{ia_image file=$banner.image title=$banner.title type='large'}
 						{/if}
 					{elseif $banner.type == 'flash'}
 						<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,29,0" {if $banner.width != 0 and $banner.height != 0}width="{$banner.width}" height="{$banner.height}{/if}">
@@ -70,10 +70,10 @@ $(function() {
 					{if $banner.type == 'image'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
 							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}"{if $banner.no_follow} rel="nofollow"{/if}>
-								{printImage imgfile=$folder|cat:$banner.image title=$banner.alt fullimage=true}
+								{ia_image file=$banner.image title=$banner.title type='large'}
 							</a>
 						{else}
-							{printImage imgfile=$folder|cat:$banner.image title=$banner.alt fullimage=true}
+							{ia_image file=$banner.image title=$banner.title type='large'}
 						{/if}
 					{elseif $banner.type == 'flash'}
 						<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,29,0" {if $banner.width != 0 and $banner.height != 0}width="{$banner.width}" height="{$banner.height}{/if}">
@@ -107,4 +107,4 @@ $(function() {
 		</div>
 	{/if}
 {/if}
-{ia_add_media files='js:_IA_URL_plugins/banners/js/frontend/banners, css:_IA_URL_plugins/banners/templates/front/css/style'}
+{ia_add_media files='js:_IA_URL_modules/banners/js/frontend/banners, css:_IA_URL_modules/banners/templates/front/css/style'}
