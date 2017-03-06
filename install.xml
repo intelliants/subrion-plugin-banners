@@ -5,7 +5,7 @@
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
 	<version>4.1.0</version>
-	<date>2016-03-03</date>
+	<date>2016-03-06</date>
 	<compatibility>4.1</compatibility>
 
 	<pages>
@@ -19,9 +19,9 @@
 	</adminpages>
 
 	<actions>
-		<action name="banner_view" url="banners/" icon="list" order="1" pages="manage_banners,banner_plans,banners_config">View</action>
-		<action name="banner_add" url="banners/add/" icon="plus" order="2" pages="manage_banners,banner_plans,banners_config">Add</action>
-		<action name="banner_config" url="banners/config/" icon="tools" order="2" pages="manage_banners,banner_plans,banners_config">Config</action>
+		<action name="manage_banners" url="banners/" icon="list" order="1" pages="manage_banners,banner_plans,banners_config"><![CDATA[]]></action>
+		<action name="add_banner" url="banners/add/" icon="plus" order="2" pages="manage_banners,banner_plans,banners_config"><![CDATA[]]></action>
+		<action name="banner_config" url="banners/config/" icon="tools" order="2" pages="manage_banners,banner_plans,banners_config"><![CDATA[]]></action>
 	</actions>
 
 	<phrases>
@@ -31,6 +31,7 @@
 		<phrase category="admin" key="are_you_sure_to_delete_selected_banner">Are you sure you want to delete selected banner?</phrase>
 		<phrase category="admin" key="banner_block">Banner block</phrase>
 		<phrase category="admin" key="banner_block_title">Block title</phrase>
+		<phrase category="admin" key="banner_config">Banner config</phrase>
 		<phrase category="admin" key="banner_height">Banner height</phrase>
 		<phrase category="admin" key="banner_position_incorrect">The banners' limit for the selected block is exceeded.</phrase>
 		<phrase category="admin" key="banner_width">Banner width</phrase>
@@ -210,16 +211,6 @@ CREATE TABLE `{prefix}banners_block_options` (
 	</install>
 
 	<uninstall>
-		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banners`;]]></sql>
-		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banner_clicks`;]]></sql>
-		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banners_block_options`;]]></sql>
+		<sql><![CDATA[DROP TABLE IF EXISTS `{prefix}banners`, `{prefix}banner_clicks`, `{prefix}banners_block_options`;]]></sql>
 	</uninstall>
-
-	<upgrade>
-		<sql version="3.2.0">
-			<![CDATA[
-ALTER TABLE `{prefix}banners` CHANGE `added` `date_added` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00';
-			]]>
-		</sql>
-	</upgrade>
 </module>

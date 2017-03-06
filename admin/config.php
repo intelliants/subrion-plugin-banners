@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,19 +20,19 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
 $iaDb->setTable('banners');
 
 $iaBanner = $iaCore->factoryPlugin('banners', iaCore::ADMIN, 'banner');
-$allowedAction = array('add_block', 'remove_block', 'save_block');
+$allowedAction = ['add_block', 'remove_block', 'save_block'];
 $configAction = isset($_GET['action']) && in_array($_GET['action'], $allowedAction) ? $_GET['action'] : '';
 
 if (iaView::REQUEST_JSON == $iaView->getRequestType())
 {
-	$out = array('msg' => '', 'error' => true);
+	$out = ['msg' => '', 'error' => true];
 	$id = isset($_GET['id']) && !empty($_GET['id']) ? intval($_GET['id']) : 0;
 
 	if ('remove_block' == $configAction && $id)
@@ -56,13 +56,13 @@ if (iaView::REQUEST_JSON == $iaView->getRequestType())
 
 	if ('save_block' == $configAction && $id)
 	{
-		$fields = array(
+		$fields = [
 			'amount' => isset($_GET['amount']) ? intval($_GET['amount']) : 0,
 			'amount_displayed' => isset($_GET['amount_displayed']) ? intval($_GET['amount_displayed']) : 0,
 			'width' => isset($_GET['width']) ? intval($_GET['width']) : 0,
 			'height' => isset($_GET['height']) ? intval($_GET['height']) : 0,
 			'slider' => isset($_GET['slider']) ? intval($_GET['slider']) : 0
-		);
+		];
 
 		if ($fields['amount'] < $fields['amount_displayed'])
 		{
@@ -100,7 +100,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 	{
 		$iaBlock = $iaCore->factory('block', iaCore::ADMIN);
 
-		$block = array(
+		$block = [
 			'name' => 'banner_block_' . $position . '_' . $num,
 			'position' => $position,
 			'type' => 'smarty',
@@ -112,17 +112,17 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 			'external' => 1,
 			'filename' => 'extra:banners/render-banners',
 			'module' => 'banners'
-		);
+		];
 
 		$id = $iaBlock->insert($block);
 
-		$fields = array(
+		$fields = [
 			'amount' => 1,
 			'amount_displayed' => 1,
 			'width' => 360,
 			'height' => 360,
 			'block_id' => $id,
-		);
+		];
 
 		$iaDb->setTable('banners_block_options');
 		$iaDb->insert($fields);
@@ -135,23 +135,23 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 	$positions = $iaDb->onefield('name', '`menu` = 0', null, null, 'positions');
 
 	$iaView->assign('positions', $positions);
-	$blocks = array();
+	$blocks = [];
 
 	$iaDb->setTable('blocks');
 	foreach ($positions as $pos)
 	{
-		$sql = 'SELECT b.*, l.`value` AS `title` FROM `:prefix:table_blocks` b '
-			 . 'LEFT JOIN `:prefix:table_language` l ON (l.`key` = CONCAT("block_title_", b.`id`)) '
-			 . 'WHERE b.`position` = ":postition" AND b.`module` = ":module"';
-
-		$sql = iaDb::printf($sql, array(
+		$sql = <<<SQL
+SELECT b.*, l.`value` AS `title` FROM `:prefix:table_blocks` b 
+LEFT JOIN `:prefix:table_language` l ON (l.`key` = CONCAT("block_title_", b.`id`)) 
+WHERE b.`position` = ":postition" AND b.`module` = ":module"
+SQL;
+		$sql = iaDb::printf($sql, [
 				'prefix' => $this->iaDb->prefix,
 				'table_blocks' => 'blocks',
 				'table_language' => 'language',
 				'postition' => $pos,
 				'module' => 'banners'
-		));
-
+		]);
 		$b = $iaDb->getAll($sql);
 		if ($b)
 		{
@@ -164,7 +164,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 	$options = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION);
 	$iaDb->resetTable();
 
-	$blockOptions = array();
+	$blockOptions = [];
 	foreach ($options as $option)
 	{
 		$blockOptions[$option['block_id']] = $option;

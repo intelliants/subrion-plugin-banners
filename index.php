@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,7 +20,7 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
@@ -31,7 +31,7 @@ if (iaView::REQUEST_JSON == $iaView->getRequestType())
 		$id = (int)$_GET['id'];
 		$ip = $iaCore->util()->getIp();
 
-		$iaBanner = $iaCore->factoryPlugin('banners', iaCore::FRONT, 'banner');
+		$iaBanner = $iaCore->factoryPlugin(IA_CURRENT_MODULE, iaCore::FRONT, 'banner');
 
 		if (!$iaBanner->checkClick($id, $ip))
 		{

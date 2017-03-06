@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,7 +20,7 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
@@ -28,16 +28,16 @@ final class iaBanner extends abstractModuleAdmin
 {
 	protected static $_table = 'banners';
 
-	private $_imgTypes = array(
+	private $_imgTypes = [
 		'image/gif' => 'gif',
 		'image/jpeg' => 'jpg',
 		'image/pjpeg' => 'jpg',
 		'image/png' => 'png'
-	);
+	];
 
-	private $_flashTypes = array(
+	private $_flashTypes = [
 		'application/x-shockwave-flash' => 'swf'
-	);
+	];
 
 
 	public function __construct()
@@ -64,30 +64,26 @@ final class iaBanner extends abstractModuleAdmin
 	/**
 	* Adds banner record in table
 	*
-	* @param str $banner banner info
-	* @param arr $rawValues additional params
+	* @param array $banner banner info
 	*
 	* @return int
 	*/
-	public function insert($banner, $rawValues = null)
+	public function insert(array $itemData)
 	{
-		if (!isset($rawValues['added']))
+		$itemData['date_added'] = date(iaDb::DATETIME_FORMAT);
+
+		if ('image' == $itemData['type'])
 		{
-			$rawValues['date_added'] = iaDb::FUNCTION_NOW;
+			$this->_updateImage($itemData);
+		}
+		elseif ('flash' == $itemData['type'])
+		{
+			$this->_updateFlash($itemData);
 		}
 
-		if ('image' == $banner['type'])
-		{
-			$this->_updateImage ($banner);
-		}
-		elseif ('flash' == $banner['type'])
-		{
-			$this->_updateFlash ($banner);
-		}
+		unset($itemData['folder'], $itemData['imageResize'], $itemData['targetframe'], $itemData['params']);
 
-		unset($banner['folder'], $banner['imageResize'], $banner['targetframe'], $banner['params']);
-
-		return $this->iaDb->insert($banner, $rawValues, self::getTable());
+		return $this->iaDb->insert($itemData, null, self::getTable());
 	}
 
 	public function updateBanner($banner, $where = '')
@@ -114,17 +110,17 @@ final class iaBanner extends abstractModuleAdmin
 	*
 	* @return bool
 	*/
-	public function gridRead($params, $columns, array $filterParams = array(), array $persistentConditions = array())
+	public function gridRead($params, $columns, array $filterParams = [], array $persistentConditions = [])
 	{
-		$params || $params = array();
+		$params || $params = [];
 		$start = isset($params['start']) ? (int)$params['start'] : 0;
 		$limit = isset($params['limit']) ? (int)$params['limit'] : 15;
 
 		$sort = $params['sort'];
-		$dir = in_array($params['dir'], array(iaDb::ORDER_ASC, iaDb::ORDER_DESC)) ? $params['dir'] : iaDb::ORDER_ASC;
+		$dir = in_array($params['dir'], [iaDb::ORDER_ASC, iaDb::ORDER_DESC]) ? $params['dir'] : iaDb::ORDER_ASC;
 		$order = ($sort && $dir) ? "`{$sort}` {$dir}" : 't1.`date` DESC';
 
-		$where = $values = array();
+		$where = $values = [];
 		foreach ($filterParams as $name => $type)
 		{
 			if (isset($params[$name]) && $params[$name])
@@ -151,7 +147,7 @@ final class iaBanner extends abstractModuleAdmin
 
 		if (is_array($columns))
 		{
-			$columns = array_merge(array('id', 'update' => 1, 'delete' => 1), $columns);
+			$columns = array_merge(['id', 'update' => 1, 'delete' => 1], $columns);
 		}
 
 		$sql =
@@ -162,20 +158,13 @@ final class iaBanner extends abstractModuleAdmin
 		'WHERE ' . $where . ' ' .
 		'LIMIT ' . $start . ', ' . $limit;
 
-		return array(
+		return [
 			'data' => $this->iaDb->getAll($sql),
 			'total' => (int)$this->iaDb->one(iaDb::STMT_COUNT_ROWS, $where)
-		);
+		];
 	}
 
-	/**
-	* Deletes banner record
-	*
-	* @param int $aId banner id
-	*
-	* @return bool
-	*/
-	public function gridDelete($params)
+	public function gridDelete($params, $languagePhraseKey = 'deleted')
 	{
 		$affected = 0;
 
@@ -188,7 +177,7 @@ final class iaBanner extends abstractModuleAdmin
 			$this->iaDb->resetTable();
 
 			// validate it once more... (remove all the / and \ characters)
-			$image = str_replace(array('/',"\\"), "", $image);
+			$image = str_replace(['/',"\\"], "", $image);
 			/**
 			 * Remove original image
 			 */
@@ -207,7 +196,7 @@ final class iaBanner extends abstractModuleAdmin
 				unlink(IA_HOME . 'uploads' . IA_DS . $folder . IA_DS . $filename . '~.' . $ext);
 			}
 
-			$this->iaDb->delete('`banner_id` = :id', 'banner_clicks', array('id' => $bannerId));
+			$this->iaDb->delete('`banner_id` = :id', 'banner_clicks', ['id' => $bannerId]);
 		}
 
 		$result['result'] = true;

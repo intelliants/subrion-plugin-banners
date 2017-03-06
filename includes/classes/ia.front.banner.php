@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,7 +20,7 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
@@ -46,7 +46,7 @@ final class iaBanner extends abstractModuleFront
 
 		if (is_array($rows) && $rows)
 		{
-			$banners = array();
+			$banners = [];
 			foreach ($rows as $entry)
 			{
 				$banners[$entry['position']][] = $entry;
@@ -64,7 +64,7 @@ final class iaBanner extends abstractModuleFront
 	 */
 	public function getAmountDisplayed()
 	{
-		return $this->iaDb->keyvalue(array('block_id', 'amount_displayed'), null, self::getTableBlockOptions());
+		return $this->iaDb->keyvalue(['block_id', 'amount_displayed'], null, self::getTableBlockOptions());
 	}
 
 	/**
@@ -77,11 +77,11 @@ final class iaBanner extends abstractModuleFront
 	*/
 	public function click($bannerId, $ipAddress)
 	{
-		$row = array(
+		$row = [
 			'banner_id' => $bannerId,
 			'ip' => $ipAddress
-		);
-		$this->iaDb->insert($row, array('date' => iaDb::FUNCTION_NOW), 'banner_clicks');
+		];
+		$this->iaDb->insert($row, ['date' => iaDb::FUNCTION_NOW], 'banner_clicks');
 		$this->iaDb->query("UPDATE `" . self::getTable(true) . "` SET `clicked` = `clicked` + 1 WHERE `id`='" . $bannerId . "'");
 
 		return true;
@@ -118,6 +118,6 @@ final class iaBanner extends abstractModuleFront
 	{
 		$id = $params['id'];
 		$iaCore = iaCore::instance();
-		$iaCore->iaDb->update(array(), "`id` = '$id'", array('showed' => "`showed` + '1'"), self::getTable());
+		$iaCore->iaDb->update([], "`id` = '$id'", ['showed' => "`showed` + '1'"], self::getTable());
 	}
 }

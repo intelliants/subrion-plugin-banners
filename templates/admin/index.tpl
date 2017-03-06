@@ -83,7 +83,7 @@
 
 		<div class="row" id="textcontainer" style="display: none;">
 			<label class="col col-lg-2 control-label">{lang key='content'}</label>
-			<div class="col col-lg-4">
+			<div class="col col-lg-8">
 				{ia_wysiwyg name='content' value=$item.content}
 			</div>
 		</div>

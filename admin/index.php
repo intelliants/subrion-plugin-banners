@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2016 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,7 +20,7 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
 
@@ -33,11 +33,11 @@ if ($iaView->getRequestType() == iaView::REQUEST_JSON)
 	switch ($pageAction)
 	{
 		case iaCore::ACTION_READ:
-			$columns = array('title', 'position_title', 'banner_position', 'type', 'showed', 'clicked', 'status');
-			$filterParams = array(
+			$columns = ['title', 'position_title', 'banner_position', 'type', 'showed', 'clicked', 'status'];
+			$filterParams = [
 				'title' => 'like',
 				'status' => 'equal'
-			);
+			];
 
 			$output = $iaBanner->gridRead($_GET, $columns, $filterParams);
 
@@ -71,24 +71,24 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			$iaView->setMessages(iaLanguage::get('uploads_not_writable'), 'error');
 		}
 
-		$targets = array(
+		$targets = [
 			'_blank' => iaLanguage::get('_blank'),
 			'_self' => iaLanguage::get('_self'),
 			'_parent' => iaLanguage::get('_parent'),
 			'_top' => iaLanguage::get('_top')
-		);
+		];
 
-		$statuses = array(
+		$statuses = [
 			iaCore::STATUS_INACTIVE => iaLanguage::get(iaCore::STATUS_INACTIVE),
 			iaCore::STATUS_ACTIVE => iaLanguage::get(iaCore::STATUS_ACTIVE)
-		);
+		];
 
-		$types = array(
+		$types = [
 			'local' => iaLanguage::get('local'),
 			'remote' => iaLanguage::get('remote'),
 			'text' => iaLanguage::get('text'),
 			'html' => iaLanguage::get('html')
-		);
+		];
 
 		$iaDb->setTable('blocks');
 		$sql = "
@@ -128,7 +128,7 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 		}
 		else
 		{
-			$banner = array(
+			$banner = [
 				'type' => null,
 				'image' => '',
 				'position' => null,
@@ -145,10 +145,10 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				'params' => 0,
 				'id' => 0,
 				'owner' => iaUsers::getIdentity()->fullname,
-			);
+			];
 		}
 
-		$banner = array(
+		$banner = [
 			'id' => $banner['id'],
 			'type' => iaUtil::checkPostParam('type', $banner),
 			'image' => iaUtil::checkPostParam('image', $banner),
@@ -166,12 +166,12 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			'status' => iaUtil::checkPostParam('status', $banner),
 			'params' => iaUtil::checkPostParam('params', $banner),
 			'owner' => iaUtil::checkPostParam('owner', $banner),
-		);
+		];
 
 		if (isset($_POST['save']))
 		{
 			$error = false;
-			$messages = array();
+			$messages = [];
 
 			iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
 
@@ -222,7 +222,7 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 
 			if (!empty($banner['owner']))
 			{
-				if ($memberId = $iaDb->one_bind('id', '`username` = :name OR `fullname` = :name', array('name' => iaSanitize::sql($banner['owner'])), iaUsers::getTable()))
+				if ($memberId = $iaDb->one_bind('id', '`username` = :name OR `fullname` = :name', ['name' => iaSanitize::sql($banner['owner'])], iaUsers::getTable()))
 				{
 					$banner['member_id'] = $memberId;
 					unset($banner['owner']);
@@ -299,7 +299,7 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				$banner['planetext_content'] = '';
 			}
 
-			if (empty($banner['content']) && empty($banner['planetext_content']) && in_array($banner['type'], array('html','text')))
+			if (empty($banner['content']) && empty($banner['planetext_content']) && in_array($banner['type'], ['html','text']))
 			{
 				$error = true;
 				$messages[] = iaLanguage::get('content_incorrect');
@@ -358,11 +358,11 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 				if (isset($_POST['goto']))
 				{
 					$url = IA_ADMIN_URL . 'banners/';
-					$goto = array(
+					$goto = [
 						'add' => $url . '/add/',
 						'list' => $url,
 						'stay' => $url . '/edit/' . $banner['id'],
-					);
+					];
 					iaUtil::post_goto($goto);
 				}
 				else
@@ -377,7 +377,7 @@ elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
 			}
 		}
 		$banner['statuses'] = $statuses;
-		$options = array('list' => 'go_to_list', 'add' => 'add_another_one', 'stay' => 'stay_here');
+		$options = ['list' => 'go_to_list', 'add' => 'add_another_one', 'stay' => 'stay_here'];
 		$iaView->assign('goto', $options);
 		$iaView->assign('item', $banner);
 		$iaView->assign('targets', $targets);
