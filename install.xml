@@ -4,9 +4,9 @@
 	<summary>This plugin allows you to display banners on your website pages.</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.1.0</version>
-	<date>2016-03-06</date>
-	<compatibility>4.1</compatibility>
+	<version>4.2.0</version>
+	<date>2018-03-07</date>
+	<compatibility>4.2</compatibility>
 
 	<pages>
 		<page name="banner" uniqueurl="banners/index/" readonly="1" service="1" nofollow="1"><![CDATA[ ]]></page>
@@ -131,20 +131,7 @@ Thank you,
 	</config>
 
 	<hooks>
-		<hook name="phpSmartyAfterFuncInit" page_type="front">
-		<![CDATA[
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	$iaBanner = $iaCore->factoryPlugin('banners', iaCore::FRONT, 'banner');
-	$iaSmarty->registerPlugin(iaSmarty::PLUGIN_FUNCTION, 'bannerImpressionsCount', array('iaBanner', 'impressionsCount'));
-	$banners_slider = $iaDb->keyvalue(array('block_id', 'slider'), null, iaBanner::getTableBlockOptions());
-
-	$iaView->assign('banners_slider', $banners_slider);
-	$iaView->assign('banners_displayed', $iaBanner->getAmountDisplayed());
-	$iaView->assign('banners', $iaBanner->getBanners());
-}
-		]]>
-		</hook>
+		<hook name="phpSmartyAfterFuncInit" page_type="front" filename="hook.banner-load.php"><![CDATA[]]></hook>
 	</hooks>
 
 	<install>

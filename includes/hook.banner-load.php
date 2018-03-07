@@ -24,19 +24,13 @@
  *
  ******************************************************************************/
 
-if (iaView::REQUEST_JSON == $iaView->getRequestType())
+if (iaView::REQUEST_HTML == $iaView->getRequestType())
 {
-	if (isset($_GET['id']) && ($_GET['id'] || !preg_match('#\D#', $_GET['id']) || ((int)$_GET['id']) > 0))
-	{
-		$id = (int)$_GET['id'];
-		$ip = $iaCore->util()->getIp();
+    $iaBanner = $iaCore->factoryModule('banner', 'banners');
+    $iaSmarty->registerPlugin(iaSmarty::PLUGIN_FUNCTION, 'bannerImpressionsCount', array('iaBanner', 'impressionsCount'));
+    $banners_slider = $iaDb->keyvalue(array('block_id', 'slider'), null, iaBanner::getTableBlockOptions());
 
-		$iaBanner = $iaCore->factoryModule(IA_CURRENT_MODULE, iaCore::FRONT, 'banner');
-
-		if (!$iaBanner->checkClick($id, $ip))
-		{
-			$iaBanner->click($id, $ip);
-		}
-        $iaView->add_css('_IA_URL_modules/banners/templates/front/css/style');
-	}
+    $iaView->assign('banners_slider', $banners_slider);
+    $iaView->assign('banners_displayed', $iaBanner->getAmountDisplayed());
+    $iaView->assign('banners', $iaBanner->getBanners());
 }

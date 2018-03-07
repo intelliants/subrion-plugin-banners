@@ -42,5 +42,4 @@
 	{/foreach}
 </div>
 
-{ia_print_css files='_IA_URL_modules/banners/templates/admin/css/style'}
 {ia_print_js files="_IA_URL_modules/banners/js/admin/config"}

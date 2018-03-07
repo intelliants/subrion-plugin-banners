@@ -26,7 +26,7 @@
 					</div>
 				</div>
 			{/if}
-			
+
 			<div class="row">
 				<label class="col col-lg-2 control-label" for="js-banner-position">{lang key='banner_block'}</label>
 				<div class="col col-lg-4">
@@ -41,7 +41,7 @@
 					</select>
 				</div>
 			</div>
-			
+
 			<div class="row">
 				<label class="col col-lg-2 control-label" for="js-type-selector">{lang key='banner_type'}</label>
 				<div class="col col-lg-4">
@@ -59,7 +59,7 @@
 				<input type="text" name="image" id="bannerImageUrl" value="{$item.image}">
 			</div>
 		</div>
-		
+
 		<div class="row" id="uploadcontainer" style="display: none;">
 			<label class="col col-lg-2 control-label" for="file">{lang key='choose_file_upload'} {lang key='field_required'}</label>
 			<div class="col col-lg-4">

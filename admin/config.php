@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -26,7 +26,7 @@
 
 $iaDb->setTable('banners');
 
-$iaBanner = $iaCore->factoryPlugin('banners', iaCore::ADMIN, 'banner');
+$iaBanner = $iaCore->factoryModule('banners', 'banner');
 $allowedAction = ['add_block', 'remove_block', 'save_block'];
 $configAction = isset($_GET['action']) && in_array($_GET['action'], $allowedAction) ? $_GET['action'] : '';
 
@@ -110,7 +110,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 			'sticky' => 1,
 			'title' => $title,
 			'external' => 1,
-			'filename' => 'extra:banners/render-banners',
+			'filename' => 'module:banners/render-banners.tpl',
 			'module' => 'banners'
 		];
 
@@ -172,8 +172,8 @@ SQL;
 
 	$iaView->assign('blocks_options', $blockOptions);
 	$iaView->assign('banner_blocks', $blocks);
-
 	$iaView->display('config');
+    $iaView->add_css('_IA_URL_modules/banners/templates/admin/css/style');
 }
 
 $iaDb->resetTable();

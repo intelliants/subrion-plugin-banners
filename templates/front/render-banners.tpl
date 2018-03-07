@@ -107,4 +107,4 @@ $(function() {
 		</div>
 	{/if}
 {/if}
-{ia_add_media files='js:_IA_URL_modules/banners/js/frontend/banners, css:_IA_URL_modules/banners/templates/front/css/style'}
+{ia_add_media files='js:_IA_URL_modules/banners/js/frontend/banners'}
