@@ -24,372 +24,273 @@
  *
  ******************************************************************************/
 
-$iaBanner = $iaCore->factoryPlugin('banners', iaCore::ADMIN, 'banner');
 
-$iaDb->setTable(iaBanner::getTable());
-
-if ($iaView->getRequestType() == iaView::REQUEST_JSON)
+class iaBackendController extends iaAbstractControllerModuleBackend
 {
-	switch ($pageAction)
-	{
-		case iaCore::ACTION_READ:
-			$columns = ['title', 'position_title', 'banner_position', 'type', 'showed', 'clicked', 'status'];
-			$filterParams = [
-				'title' => 'like',
-				'status' => 'equal'
-			];
+    protected $_name = 'banners';
 
-			$output = $iaBanner->gridRead($_GET, $columns, $filterParams);
+    protected $_table = 'banners';
+    protected $_tableClicks = 'banners_clicks';
+    protected $_tableBlockOptions = 'banners_block_options';
+    protected $_phraseAddSuccess = 'banner_added';
+    protected $_phraseGridEntryDeleted = 'banner_deleted';
 
-			break;
 
-		case iaCore::ACTION_EDIT:
-			$output = $iaBanner->gridUpdate($_POST);
+    public function __construct()
+    {
+        parent::__construct();
 
-			break;
+        $this->setHelper($this->_iaCore->factoryModule('banner', $this->getModuleName()));
+    }
 
-		case iaCore::ACTION_DELETE:
-			$output = $iaBanner->gridDelete($_POST);
-	}
+    protected function _indexPage(&$iaView)
+    {
+        $iaView->grid('_IA_URL_modules/' . $this->getModuleName() . '/js/admin/banners');
+    }
 
-	$iaView->assign($output);
+    protected function _setPageTitle(&$iaView, array $entryData, $action)
+    {
+        if (in_array($action, [iaCore::ACTION_ADD, iaCore::ACTION_EDIT])) {
+            $iaView->title(iaLanguage::get($iaView->get('action') . '_banner'));
+        }
+    }
 
+    protected function _gridQuery($columns, $where, $order, $start, $limit)
+    {
+        $sql = <<<SQL
+SELECT SQL_CALC_FOUND_ROWS bn.*, bl.name `position_title`, bl.`position` `banner_position`,
+bl.`id` `edit_block`, 1 `update`, 1 `delete`
+FROM `:prefix:table_banners` bn
+LEFT JOIN `:prefix:table_blocks` bl ON bn.`position` = bl.`id` 
+WHERE :where
+LIMIT :start, :limit
+SQL;
+        $sql = iaDb::printf($sql, [
+            'prefix' => $this->_iaDb->prefix,
+            'table_banners' => self::getTable(true),
+            'table_blocks' => 'blocks',
+            'where' => $where,
+            'start' => $start,
+            'limit' => $limit,
+        ]);
+
+        return $this->_iaDb->getAll($sql);
+    }
+
+    protected function _setDefaultValues(array &$entry)
+    {
+        $entry['type'] = null;
+        $entry['image'] = '';
+        $entry['position'] = null;
+        $entry['title'] = null;
+        $entry['alt'] = null;
+        $entry['content'] = null;
+        $entry['planetext_content'] = null;
+        $entry['width'] = 0;
+        $entry['height'] = 0;
+        $entry['url'] = 'http://';
+        $entry['target'] = null;
+        $entry['no_follow'] = 0;
+        $entry['status'] = iaCore::STATUS_ACTIVE;
+        $entry['params'] = 0;
+        $entry['member_id'] = iaUsers::getIdentity()->id;
+    }
+
+    protected function _targets()
+    {
+        return [
+            '_blank' => iaLanguage::get('_blank'),
+            '_self' => iaLanguage::get('_self'),
+            '_parent' => iaLanguage::get('_parent'),
+            '_top' => iaLanguage::get('_top')
+        ];
+    }
+
+    protected function _types()
+    {
+        return [
+            'local' => iaLanguage::get('local'),
+            'remote' => iaLanguage::get('remote'),
+            'text' => iaLanguage::get('text'),
+            'html' => iaLanguage::get('html')
+        ];
+    }
+
+    protected function _getPositions()
+    {
+        $sql = <<<SQL
+SELECT bl.*, l.`value` title, COUNT(bn.`id`) bn_col, opt.`amount` bn_max, opt.`width`, opt.`height`
+FROM `:prefix:table_blocks` bl
+LEFT JOIN `:prefix:table_options` opt ON bl.`id` = opt.`block_id`
+LEFT JOIN `:prefix:table_banners` bn ON bn.`position` = bl.`id`
+LEFT JOIN `:prefix:table_language` l ON (l.`key` = CONCAT("block_title_", bl.`id`))
+WHERE bl.`module` = ':module'
+GROUP BY bl.`id`
+SQL;
+        $sql = iaDb::printf($sql, [
+            'prefix' => $this->_iaDb->prefix,
+            'table_blocks' => 'blocks',
+            'table_options' => 'banners_block_options',
+            'table_banners' => self::getTable(),
+            'table_language' => iaLanguage::getTable(),
+            'module' => self::getModuleName(),
+        ]);
+
+        $positions = $this->_iaDb->getAll($sql);
+
+        if (!is_array($positions) || empty($positions)) {
+            // todo: implement error handling
+            $no_positions = str_replace('%href_to_config%', IA_ADMIN_URL . 'banners/config/',
+                iaLanguage::get('please_create_block'));
+            $this->_iaCore->iaView->setMessages($no_positions, iaView::ERROR);
+        }
+
+        return $positions;
+    }
+
+    protected function _assignValues(&$iaView, array &$entryData)
+    {
+        parent::_assignValues($iaView, $entryData);
+
+        if (!is_writable(IA_UPLOADS)) {
+            $iaView->setMessages(iaLanguage::get('uploads_not_writable'), 'error');
+        }
+        $iaView->assign('targets', $this->_targets());
+        $iaView->assign('types', $this->_types());
+        $iaView->assign('positions', $this->_getPositions());
+    }
+
+    protected function _entryDelete($entryId)
+    {
+        $this->getHelper()->delete($entryId);
+
+        return parent::_entryDelete($entryId);
+    }
+
+    protected function _preSaveEntry(array &$entry, array $data, $action)
+    {
+        parent::_preSaveEntry($entry, $data, $action);
+
+        iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
+
+        if (!utf8_is_valid($entry['title'])) {
+            $entry['title'] = utf8_bad_replace($entry['title']);
+        }
+
+        if (!utf8_is_valid($entry['alt'])) {
+            $entry['alt'] = utf8_bad_replace($entry['alt']);
+        }
+
+        if (!utf8_is_valid($entry['content'])) {
+            $entry['content'] = utf8_bad_replace($entry['content']);
+        }
+
+        if (!utf8_is_valid($entry['planetext_content'])) {
+            $entry['planetext_content'] = utf8_bad_replace($entry['planetext_content']);
+        }
+
+        $entry['url'] = (strstr($entry['url'], 'http://') || strstr($entry['url'], 'https://'))
+            ? $entry['url'] : 'http://' . $entry['url'];
+        $entry['type'] = array_key_exists($entry['type'], $this->_types()) ? $entry['type'] : false;
+        $entry['folder'] = trim($this->_iaCore->get('banner_folder'), ' /') . '/';
+
+        if (iaCore::ACTION_EDIT != $action) {
+            foreach ($this->_getPositions() as $position) {
+                if ($entry['position'] == $position['id']) {
+                    if ($position['bn_col'] == $position['bn_max']) {
+                        $entry['position'] = false;
+                    }
+                }
+            }
+        }
+
+        if (empty($entry['date_added'])) {
+            $entry['date_added'] = date(iaDb::DATETIME_FORMAT);
+        }
+
+        if (!empty($entry['params'])) {
+            $entry['image_width'] = $entry['image_height'] = 0;
+        }
+        unset($entry['owner'], $entry['targetframe'], $entry['params'], $entry['folder']);
+
+        if (empty($entry['position'])) {
+            $messages[] = iaLanguage::get('banner_position_incorrect');
+        }
+
+        if (empty($entry['title'])) {
+            $messages[] = iaLanguage::get('banner_title_is_empty');
+        }
+
+        if (empty($entry['type'])) {
+            $messages[] = iaLanguage::get('banner_type_incorrect');
+        }
+
+        if ('local' == $entry['type']) {
+            if (is_uploaded_file($_FILES['uploadfile']['tmp_name'])) {
+                if (array_key_exists($_FILES['uploadfile']['type'], $this->getHelper()->getimgTypes())) {
+                    $entry['type'] = 'image';
+                } elseif (array_key_exists($_FILES['uploadfile']['type'], $this->getHelper()->getFlashTypes())) {
+                    $entry['type'] = 'flash';
+                } else {
+                    $messages[] = iaLanguage::get('incorrect_filetype');
+                }
+            } elseif (in_array(pathinfo($entry['image'], PATHINFO_EXTENSION), $this->getHelper()->getimgTypes())) {
+                $entry['type'] = 'image';
+            } elseif (in_array(pathinfo($entry['image'], PATHINFO_EXTENSION), $this->getHelper()->getFlashTypes())) {
+                $entry['type'] = 'flash';
+            } elseif (iaCore::ACTION_ADD == $action) {
+                $messages[] = iaLanguage::get('unknown_upload');
+            }
+        }
+
+        if ('html' == $entry['type']) {
+            $entry['planetext_content'] = '';
+        } elseif ('text' == $entry['type']) {
+            $entry['content'] = '';
+        } else {
+            $entry['content'] = '';
+            $entry['planetext_content'] = '';
+        }
+
+        if (empty($entry['content']) && empty($entry['planetext_content']) && in_array($entry['type'],
+                ['html', 'text'])) {
+            $messages[] = iaLanguage::get('content_incorrect');
+        }
+
+        if (empty($entry['image']) && 'remote' == $entry['type']) {
+            $messages[] = iaLanguage::get('remote_url_incorrect');
+        }
+
+        if ('image' == $entry['type']) {
+            $this->getHelper()->updateImage($entry);
+        } elseif ('flash' == $entry['type']) {
+            $this->getHelper()->updateFlash($entry);
+        }
+
+        /*
+        if (!iaValidate::isUrl($entry['url']) && 'html' != $banner['type'])
+        {
+            $error = true;
+            $messages = iaLanguage::get('banner_url_incorrect');
+        }
+        */
+
+        return !$this->getMessages();
+    }
+
+    protected function _postSaveEntry(array &$entry, array $data, $action)
+    {
+        $iaLog = $this->_iaCore->factory('log');
+
+        $actionCode = (iaCore::ACTION_ADD == $action)
+            ? iaLog::ACTION_CREATE
+            : iaLog::ACTION_UPDATE;
+        $params = [
+            'module' => $this->getModuleName(),
+            'item' => 'banner',
+            'name' => $entry['title'],
+            'id' => $this->getEntryId()
+        ];
+        $iaLog->write($actionCode, $params);
+    }
 }
-elseif ($iaView->getRequestType() == iaView::REQUEST_HTML)
-{
-	if ((iaCore::ACTION_ADD == $pageAction) || (iaCore::ACTION_EDIT == $pageAction))
-	{
-		if (iaCore::ACTION_EDIT == $pageAction && !isset($iaCore->requestPath[0]))
-		{
-			return iaView::errorPage(iaVIew::ERROR_NOT_FOUND);
-		}
-
-		iaBreadcrumb::replaceEnd(iaLanguage::get($pageAction . '_banner'));
-
-		if (!is_writable(IA_UPLOADS))
-		{
-			$iaView->setMessages(iaLanguage::get('uploads_not_writable'), 'error');
-		}
-
-		$targets = [
-			'_blank' => iaLanguage::get('_blank'),
-			'_self' => iaLanguage::get('_self'),
-			'_parent' => iaLanguage::get('_parent'),
-			'_top' => iaLanguage::get('_top')
-		];
-
-		$statuses = [
-			iaCore::STATUS_INACTIVE => iaLanguage::get(iaCore::STATUS_INACTIVE),
-			iaCore::STATUS_ACTIVE => iaLanguage::get(iaCore::STATUS_ACTIVE)
-		];
-
-		$types = [
-			'local' => iaLanguage::get('local'),
-			'remote' => iaLanguage::get('remote'),
-			'text' => iaLanguage::get('text'),
-			'html' => iaLanguage::get('html')
-		];
-
-		$iaDb->setTable('blocks');
-		$sql = "
-			SELECT bl.*, l.`value` as title, COUNT(bn.`id`) as bn_col, opt.`amount` as bn_max, opt.`width`, opt.`height`
-			  FROM `{$iaDb->prefix}blocks` as bl
-			LEFT JOIN `{$iaDb->prefix}banners_block_options` as opt
-			  ON bl.`id` = opt.`block_id`
-			LEFT JOIN `{$iaDb->prefix}banners` as bn
-			  ON bn.`position` = bl.`id`
-			LEFT JOIN `{$iaDb->prefix}language` l
-			  ON (l.`key` = CONCAT(\"block_title_\", bl.`id`))
-			WHERE bl.`module` = 'banners'
-			GROUP BY bl.`id`
-		";
-		$positions = $iaDb->getAll($sql);
-
-		$iaDb->resetTable();
-
-		if (!is_array($positions) || empty($positions))
-		{
-			$no_positions = str_replace('%href_to_config%', IA_ADMIN_URL . 'banners/config/', iaLanguage::get('please_create_block'));
-			$iaView->setMessages($no_positions, iaView::ERROR);
-		}
-
-		if (iaCore::ACTION_EDIT == $pageAction)
-		{
-			$id = (int)$iaCore->requestPath[0];
-			$banner = $iaDb->row(iaDb::ALL_COLUMNS_SELECTION, iaDb::convertIds($id));
-			if (!$banner)
-			{
-				return iaView::errorPage(iaView::ERROR_NOT_FOUND);
-			}
-			$iaUsers = $iaCore->factory('users');
-
-			$member_id = $iaUsers->getInfo($banner['member_id']);
-			$banner['owner'] = $member_id['fullname'];
-		}
-		else
-		{
-			$banner = [
-				'type' => null,
-				'image' => '',
-				'position' => null,
-				'title' => null,
-				'alt' => null,
-				'content' => null ,
-				'planetext_content' => null,
-				'width' => 0,
-				'height' => 0,
-				'url' => 'http://',
-				'target' => null,
-				'no_follow' => 0,
-				'status' => iaCore::STATUS_ACTIVE,
-				'params' => 0,
-				'id' => 0,
-				'owner' => iaUsers::getIdentity()->fullname,
-			];
-		}
-
-		$banner = [
-			'id' => $banner['id'],
-			'type' => iaUtil::checkPostParam('type', $banner),
-			'image' => iaUtil::checkPostParam('image', $banner),
-			'position' => iaUtil::checkPostParam('position', $banner),
-			'title' => iaUtil::checkPostParam('title', $banner),
-			'alt' => iaUtil::checkPostParam('alt', $banner),
-			'content' => iaUtil::checkPostParam('content', $banner),
-			'planetext_content' => iaUtil::checkPostParam('planetext_content', $banner),
-			'width' => iaUtil::checkPostParam('width', $banner),
-			'height' => iaUtil::checkPostParam('height', $banner),
-			'url' => iaUtil::checkPostParam('url', $banner),
-			'target' => iaUtil::checkPostParam('target', $banner),
-			'targetframe' => iaUtil::checkPostParam('targetframe', $banner),
-			'no_follow' => iaUtil::checkPostParam('no_follow', $banner),
-			'status' => iaUtil::checkPostParam('status', $banner),
-			'params' => iaUtil::checkPostParam('params', $banner),
-			'owner' => iaUtil::checkPostParam('owner', $banner),
-		];
-
-		if (isset($_POST['save']))
-		{
-			$error = false;
-			$messages = [];
-
-			iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
-
-			if (!empty($banner['title']) && !utf8_is_valid($banner['title']))
-			{
-				$banner['title'] = utf8_bad_replace($banner['title']);
-			}
-
-			if (!empty($banner['alt']) && !utf8_is_valid($banner['alt']))
-			{
-				$banner['alt'] = utf8_bad_replace($banner['alt']);
-			}
-
-			if (!empty($banner['content']) && !utf8_is_valid($banner['content']))
-			{
-				$banner['content'] = utf8_bad_replace($banner['content']);
-			}
-
-			if (!empty($banner['planetext_content']) && !utf8_is_valid($banner['planetext_content']))
-			{
-				$banner['planetext_content'] = utf8_bad_replace($banner['planetext_content']);
-			}
-
-			$banner['url'] = (strstr($banner['url'], 'http://') || strstr($banner['url'], 'https://'))
-				? $banner['url'] : 'http://' . $banner['url'];
-			$banner['status'] = array_key_exists($banner['status'], $statuses) ? $banner['status'] : 'inactive';
-			$banner['type'] = array_key_exists($banner['type'], $types) ? $banner['type'] : false;
-			$banner['folder'] = trim($iaCore->get('banner_folder'), ' /') . '/';
-
-			if (iaCore::ACTION_EDIT != $pageAction)
-			{
-				foreach ($positions as $position)
-				{
-					if ($banner['position'] == $position['id'])
-					{
-						if ($position['bn_col'] == $position['bn_max'])
-						{
-							$banner['position'] = false;
-						}
-					}
-				}
-			}
-
-			if ($banner['params'])
-			{
-				$banner['image_width'] = $banner['image_height'] = 0;
-			}
-
-			if (!empty($banner['owner']))
-			{
-				if ($memberId = $iaDb->one_bind('id', '`username` = :name OR `fullname` = :name', ['name' => iaSanitize::sql($banner['owner'])], iaUsers::getTable()))
-				{
-					$banner['member_id'] = $memberId;
-					unset($banner['owner']);
-				}
-				else
-				{
-					$error = true;
-					$messages[] = iaLanguage::get('incorrect_owner_specified');
-				}
-			}
-
-			if (!$banner['position'])
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('banner_position_incorrect');
-			}
-
-			if (empty($banner['title']))
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('banner_title_is_empty');
-			}
-
-			if (!$banner['type'])
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('banner_type_incorrect');
-			}
-
-			if ('local' == $banner['type'])
-			{
-				if (is_uploaded_file($_FILES['uploadfile']['tmp_name']))
-				{
-					if (array_key_exists($_FILES['uploadfile']['type'], $iaBanner->getimgTypes()))
-					{
-						$banner['type'] = 'image';
-					}
-					elseif (array_key_exists($_FILES['uploadfile']['type'], $iaBanner->getFlashTypes()))
-					{
-						$banner['type'] = 'flash';
-					}
-					else
-					{
-						$error = true;
-						$messages[] = iaLanguage::get('incorrect_filetype');
-					}
-				}
-				elseif (in_array(pathinfo($banner['image'], PATHINFO_EXTENSION), $iaBanner->getimgTypes()))
-				{
-					$banner['type'] = 'image';
-				}
-				elseif (in_array(pathinfo($banner['image'], PATHINFO_EXTENSION), $iaBanner->getFlashTypes()))
-				{
-					$banner['type'] = 'flash';
-				}
-				elseif (iaCore::ACTION_ADD == $pageAction)
-				{
-					$error = true;
-					$messages[] = iaLanguage::get('unknown_upload');
-				}
-			}
-
-			if ('html' == $banner['type'])
-			{
-				$banner['planetext_content'] = '';
-			}
-			elseif ('text' == $banner['type'])
-			{
-				$banner['content'] = '';
-			}
-			else
-			{
-				$banner['content'] = '';
-				$banner['planetext_content'] = '';
-			}
-
-			if (empty($banner['content']) && empty($banner['planetext_content']) && in_array($banner['type'], ['html','text']))
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('content_incorrect');
-			}
-
-			if (empty($banner['image']) && 'remote' == $banner['type'])
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('remote_url_incorrect');
-			}
-
-			/*
-			if (!iaValidate::isUrl($banner['url']) && 'html' != $banner['type'])
-			{
-				$error = true;
-				$messages = iaLanguage::get('banner_url_incorrect');
-			}
-			*/
-
-			if (!$error)
-			{
-				if (iaCore::ACTION_EDIT == $pageAction)
-				{
-					$iaBanner->updateBanner($banner);
-
-					if ($iaDb->exists("`status` = 'active'"))
-					{
-						$iaCore->set('banners_exist', '1', true);
-					}
-					else
-					{
-						$iaCore->set('banners_exist', '', true);
-					}
-
-					$messages[] = iaLanguage::get('saved');
-				}
-				else
-				{
-					unset($banner['targetframe'], $banner['params']);
-					$banner['id'] = $iaBanner->insert($banner);
-
-					if ($iaDb->exists("`status` = 'active'"))
-					{
-						$iaCore->set("banners_exist", "1", true);
-					}
-					else
-					{
-						$iaCore->set("banners_exist", "", true);
-					}
-
-					//clear_cache();
-					$messages[] = iaLanguage::get('banner_added');
-				}
-				$iaView->setMessages($messages, ($error ? iaView::ERROR : iaView::SUCCESS));
-
-				if (isset($_POST['goto']))
-				{
-					$url = IA_ADMIN_URL . 'banners/';
-					$goto = [
-						'add' => $url . '/add/',
-						'list' => $url,
-						'stay' => $url . '/edit/' . $banner['id'],
-					];
-					iaUtil::post_goto($goto);
-				}
-				else
-				{
-					iaUtil::go_to(IA_ADMIN_URL . 'banners/edit/' . $banner['id']);
-				}
-
-			}
-			else
-			{
-				$iaView->setMessages($messages, ($error ? iaView::ERROR : iaView::SUCCESS));
-			}
-		}
-		$banner['statuses'] = $statuses;
-		$options = ['list' => 'go_to_list', 'add' => 'add_another_one', 'stay' => 'stay_here'];
-		$iaView->assign('goto', $options);
-		$iaView->assign('item', $banner);
-		$iaView->assign('targets', $targets);
-		$iaView->assign('types', $types);
-		$iaView->assign('positions', $positions);
-	}
-	else
-	{
-		$iaView->grid();
-	}
-
-	$iaView->display('index');
-}
-
-$iaDb->resetTable();

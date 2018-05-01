@@ -31,7 +31,7 @@ if (iaView::REQUEST_JSON == $iaView->getRequestType())
 		$id = (int)$_GET['id'];
 		$ip = $iaCore->util()->getIp();
 
-		$iaBanner = $iaCore->factoryPlugin(IA_CURRENT_MODULE, iaCore::FRONT, 'banner');
+		$iaBanner = $iaCore->factoryModule('banner', IA_CURRENT_MODULE, iaCore::FRONT);
 
 		if (!$iaBanner->checkClick($id, $ip))
 		{

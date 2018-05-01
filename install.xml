@@ -4,24 +4,23 @@
 	<summary>This plugin allows you to display banners on your website pages.</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.1.0</version>
+	<version>4.2.0</version>
 	<date>2016-03-06</date>
-	<compatibility>4.1</compatibility>
+	<compatibility>4.2</compatibility>
 
 	<pages>
 		<page name="banner" uniqueurl="banners/index/" readonly="1" service="1" nofollow="1"><![CDATA[ ]]></page>
 	</pages>
 
 	<adminpages>
-		<page name="manage_banners" url="banners/" menus="menu">Banners</page>
-		<page name="banners_config" url="banners/config/" action="config" parent="manage_banners" filename="config">Banners Blocks</page>
-		<page name="banner_plans" url="banners/plans/">Banner Plans</page>
+		<page name="banners" url="banners/" menus="menu">Banners</page>
+		<page name="banners_config" url="banners/config/" parent="banners" filename="config">Banners Blocks</page>
 	</adminpages>
 
 	<actions>
-		<action name="manage_banners" url="banners/" icon="list" order="1" pages="manage_banners,banner_plans,banners_config"><![CDATA[]]></action>
-		<action name="add_banner" url="banners/add/" icon="plus" order="2" pages="manage_banners,banner_plans,banners_config"><![CDATA[]]></action>
-		<action name="banner_config" url="banners/config/" icon="tools" order="2" pages="manage_banners,banner_plans,banners_config"><![CDATA[]]></action>
+		<action name="manage_banners" url="banners/" icon="list" order="1" pages="banners,banners_config"><![CDATA[]]></action>
+		<action name="add_banner" url="banners/add/" icon="plus" order="2" pages="banners,banners_config"><![CDATA[]]></action>
+		<action name="banner_config" url="banners/config/" icon="tools" order="2" pages="banners,banners_config"><![CDATA[]]></action>
 	</actions>
 
 	<phrases>
@@ -55,7 +54,8 @@
 		<phrase category="common" key="_top">Top Frame</phrase>
 		<phrase category="common" key="add_banner">Add Banner</phrase>
 		<phrase category="common" key="banner">Banner</phrase>
-		<phrase category="common" key="banner_added">Banner added.</phrase>
+		<phrase category="common" key="banner_added">Banner Added.</phrase>
+		<phrase category="common" key="banner_deleted">Banner Deleted.</phrase>
 		<phrase category="common" key="banner_alt">Banner Alternative Text</phrase>
 		<phrase category="common" key="banner_email">Your e-mail</phrase>
 		<phrase category="common" key="banner_email_incorrect">As far as you are not registered please input your email address to which you'd like to receive any updates on your banner.</phrase>
@@ -82,7 +82,6 @@
 		<phrase category="common" key="include_subcats">include subcategories</phrase>
 		<phrase category="common" key="left">Left</phrase>
 		<phrase category="common" key="local">Local (image or flash)</phrase>
-		<phrase category="common" key="manage_banner_plans">Banner Plans</phrase>
 		<phrase category="common" key="paypal_not_installed">You need install any payment plugin before create a banners plan.</phrase>
 		<phrase category="common" key="remote">Remote</phrase>
 		<phrase category="common" key="remote_url_incorrect">You must specify an URL to the remote banner.</phrase>
@@ -131,20 +130,7 @@ Thank you,
 	</config>
 
 	<hooks>
-		<hook name="phpSmartyAfterFuncInit" page_type="front">
-		<![CDATA[
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	$iaBanner = $iaCore->factoryPlugin('banners', iaCore::FRONT, 'banner');
-	$iaSmarty->registerPlugin(iaSmarty::PLUGIN_FUNCTION, 'bannerImpressionsCount', array('iaBanner', 'impressionsCount'));
-	$banners_slider = $iaDb->keyvalue(array('block_id', 'slider'), null, iaBanner::getTableBlockOptions());
-
-	$iaView->assign('banners_slider', $banners_slider);
-	$iaView->assign('banners_displayed', $iaBanner->getAmountDisplayed());
-	$iaView->assign('banners', $iaBanner->getBanners());
-}
-		]]>
-		</hook>
+		<hook name="phpSmartyAfterFuncInit" type="php" page_type="front" filename="hook.init.php"><![CDATA[]]></hook>
 	</hooks>
 
 	<install>
@@ -173,7 +159,7 @@ CREATE TABLE `{prefix}banners` (
 	`email` varchar(50) NOT NULL,
 	`image` varchar(150) NOT NULL,
 	`status` enum('inactive','active','approval') NOT NULL default 'active',
-	`date_added` date NOT NULL,
+	`date_added` datetime NOT NULL,
 	`showed` int(10) unsigned NOT NULL,
 	`clicked` int(10) unsigned NOT NULL,
 	`type` varchar(20) NOT NULL,

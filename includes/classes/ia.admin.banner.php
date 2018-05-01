@@ -24,18 +24,19 @@
  *
  ******************************************************************************/
 
-final class iaBanner extends abstractModuleAdmin
+class iaBanner extends abstractModuleAdmin
 {
     protected static $_table = 'banners';
 
-    private $_imgTypes = [
+    protected $_folder;
+    protected $_imgTypes = [
         'image/gif' => 'gif',
         'image/jpeg' => 'jpg',
         'image/pjpeg' => 'jpg',
         'image/png' => 'png'
     ];
 
-    private $_flashTypes = [
+    protected $_flashTypes = [
         'application/x-shockwave-flash' => 'swf'
     ];
 
@@ -43,12 +44,12 @@ final class iaBanner extends abstractModuleAdmin
     public function __construct()
     {
         $this->iaCore = iaCore::instance();
-        $folder = trim($this->iaCore->get('banner_folder'), " /");
-        if (!file_exists(IA_UPLOADS . $folder))
-        {
+        $folder = trim($this->iaCore->get('banner_folder'), '/');
+        if (!file_exists(IA_UPLOADS . $folder)) {
             mkdir(IA_UPLOADS . $folder);
             chmod(IA_UPLOADS . $folder, 0777);
         }
+        $this->_folder = $folder;
     }
 
     public function getImgTypes()
@@ -61,207 +62,65 @@ final class iaBanner extends abstractModuleAdmin
         return $this->_flashTypes;
     }
 
-    /**
-    * Adds banner record in table
-    *
-    * @param array $banner banner info
-    *
-    * @return int
-    */
-    public function insert(array $itemData)
+    public function delete($id)
     {
-        $itemData['date_added'] = date(iaDb::DATETIME_FORMAT);
 
-        if ('image' == $itemData['type'])
-        {
-            $this->_updateImage($itemData);
-        }
-        elseif ('flash' == $itemData['type'])
-        {
-            $this->_updateFlash($itemData);
-        }
-
-        unset($itemData['folder'], $itemData['imageResize'], $itemData['targetframe'], $itemData['params']);
-
-        return $this->iaDb->insert($itemData, null, self::getTable());
-    }
-
-    public function updateBanner($banner, $where = '')
-    {
-        if ('image' == $banner['type'])
-        {
-            $this->_updateImage ($banner);
-        }
-        elseif ('flash' == $banner['type'])
-        {
-            $this->_updateFlash ($banner);
-        }
-
-        unset($banner['folder'], $banner['imageResize'], $banner['targetframe'], $banner['params']);
-
-        return $this->iaDb->update($banner, $where, null, self::getTable());
-    }
-
-    /**
-    * Updates banner info
-    *
-    * @param arr $banner
-    * @param str $where
-    *
-    * @return bool
-    */
-    public function gridRead($params, $columns, array $filterParams = [], array $persistentConditions = [])
-    {
-        $params || $params = [];
-        $start = isset($params['start']) ? (int)$params['start'] : 0;
-        $limit = isset($params['limit']) ? (int)$params['limit'] : 15;
-
-        if (!empty($params['sort']) && is_string($params['sort'])) {
-            $sort = $params['sort'];
-            $dir = in_array($params['dir'], [iaDb::ORDER_ASC, iaDb::ORDER_DESC]) ? $params['dir'] : iaDb::ORDER_ASC;
-            $order = ($sort && $dir) ? "`{$sort}` {$dir}" : 't1.`date` DESC';
-        }
-
-        $where = $values = [];
-        foreach ($filterParams as $name => $type)
-        {
-            if (isset($params[$name]) && $params[$name])
-            {
-                $value = iaSanitize::sql($params[$name]);
-
-                switch ($type)
-                {
-                    case 'equal':
-                        $where[] = sprintf('`%s` = :%s', $name, $name);
-                        $values[$name] = $value;
-                        break;
-                    case 'like':
-                        $where[] = sprintf('`%s` LIKE :%s', $name, $name);
-                        $values[$name] = '%' . $value . '%';
+        $banner = $this->getById($id);
+        if ('flash' == $banner['type']) {
+            $file = IA_UPLOADS . $this->_folder . IA_DS . $banner['image'];
+            if (is_file($file)) {
+                unlink($file);
+            }
+       } elseif ('image' == $banner['type']) {
+            list($folder, $image) = explode('|', $banner['image']);
+            foreach (['large', 'original', 'thumbnail'] as $size) {
+                $file = IA_UPLOADS . $folder . $size . IA_DS . $image;
+                if (is_file($file)) {
+                    unlink($file);
                 }
             }
         }
 
-        $where = array_merge($where, $persistentConditions);
-        $where || $where[] = iaDb::EMPTY_CONDITION;
-        $where = implode(' AND ', $where);
-        $this->iaDb->bind($where, $values);
+        $this->iaDb->delete('`banner_id` = :id', 'banner_clicks', ['id' => $id]);
 
-        if (is_array($columns))
-        {
-            $columns = array_merge(['id', 'update' => 1, 'delete' => 1], $columns);
-        }
-
-        $sql =
-        "SELECT SQL_CALC_FOUND_ROWS bn.*, bl.name `position_title`, bl.`position` `banner_position`, bl.`id` as `edit_block`, bn.`id` as `update`, 1 as `delete`
-        FROM `{$this->iaDb->prefix}banners` bn
-        LEFT JOIN `{$this->iaDb->prefix}blocks` bl
-            ON bn.`position` = bl.`id` " .
-        'WHERE ' . $where . ' ' .
-        'LIMIT ' . $start . ', ' . $limit;
-
-        return [
-            'data' => $this->iaDb->getAll($sql),
-            'total' => (int)$this->iaDb->one(iaDb::STMT_COUNT_ROWS, $where)
-        ];
+        return true;
     }
 
-    public function gridDelete($params, $languagePhraseKey = 'deleted')
+    public function updateImage(&$banner)
     {
-        $affected = 0;
-
-        foreach($params['id'] as $bannerId)
-        {
-            $folder = trim($this->iaCore->get('banner_folder'), " /");
-            $this->iaDb->setTable(self::getTable());
-            $image = $this->iaDb->one("image", "id='" . $bannerId . "'");
-            $this->iaDb->delete("`id` = '" . $bannerId . "'");
-            $this->iaDb->resetTable();
-
-            // validate it once more... (remove all the / and \ characters)
-            $image = str_replace(['/',"\\"], "", $image);
-            /**
-             * Remove original image
-             */
-            if (is_file(IA_HOME . "uploads/" . $folder . IA_DS . $image))
-            {
-                unlink(IA_HOME . "uploads" . IA_DS . $folder . IA_DS . $image);
-            }
-
-            /**
-             * Remove thumbshot
-             */
-            $ext = pathinfo($image, PATHINFO_EXTENSION);
-            $filename = substr($image, 0, strpos($image, '.'));
-            if (is_file(IA_HOME . 'uploads/' . $folder . IA_DS . $filename . '~.' . $ext))
-            {
-                unlink(IA_HOME . 'uploads' . IA_DS . $folder . IA_DS . $filename . '~.' . $ext);
-            }
-
-            $this->iaDb->delete('`banner_id` = :id', 'banner_clicks', ['id' => $bannerId]);
-        }
-
-        $result['result'] = true;
-        $result['message'] = iaLanguage::get('deleted');
-
-        return $result;
-    }
-
-    private function _updateImage(&$banner)
-    {
-        if (isset($_FILES['uploadfile']['error']) && !$_FILES['uploadfile']['error'])
-        {
+        if (isset($_FILES['uploadfile']['error']) && !$_FILES['uploadfile']['error']) {
             $iaField = $this->iaCore->factory('field');
-            $iaPicture = $this->iaCore->factory('picture');
+            $this->iaCore->factory('picture');
+            empty($banner['image']) || $iaField->deleteUploadedFile('image', self::getTable(), $banner['id'],
+                $banner['image']);
 
-            $field = [
-                'type' => $iaField::IMAGE,
-                'thumb_width' => $banner['width'],
-                'thumb_height' => $banner['height'],
-                'image_width' => $banner['width'],
-                'image_height' => $banner['height'],
-                'resize_mode' => $iaPicture::FIT,
-                'folder_name' => $this->iaCore->get('banner_folder'),
-                'file_prefix' => $this->iaCore->get('banner_prefix')
-            ];
+            $path = $iaField->uploadImage($_FILES['uploadfile'], $banner['width'],
+                $banner['height'], $banner['width'], $banner['height'],
+                iaPicture::FIT, $this->_folder, $this->iaCore->get('banner_prefix'));
 
-            empty($banner['image']) || $iaField->deleteUploadedFile('image', self::getTable(), $banner['id'], $banner['image']);
-
-            $imageEntry = $iaField->processUploadedFile($_FILES['uploadfile']['tmp_name'], $field, $_FILES['uploadfile']['name']);
-
-            $banner['image'] = $imageEntry['path'] . '|' . $imageEntry['file'];
+            $banner['image'] = $path;
         }
     }
 
-    private function _updateFlash (&$banner)
+    public function updateFlash(&$banner)
     {
-        $file = IA_HOME . 'uploads' . IA_DS . $banner['folder'] . $banner['image'];
-
-        if (is_uploaded_file($_FILES['uploadfile']['tmp_name']))
-        {
-            if (!empty($banner['image']) && file_exists($file))
-            {
+        $file = IA_UPLOADS . $this->_folder . IA_DS . $banner['image'];
+        if (is_uploaded_file($_FILES['uploadfile']['tmp_name'])) {
+            if (!empty($banner['image']) && file_exists($file)) {
                 unlink($file);
             }
 
-//          list($iwidth, $iheight) = @getimagesize($_FILES['uploadfile']['tmp_name']);
             $width = $banner['width'];
             $height = $banner['height'];
 
-            // set image
             $banner['image'] = iaUtil::generateToken() . '.swf';
-            $file = IA_HOME . 'uploads' . IA_DS . $banner['folder'] . IA_DS . $banner['image'];
             $banner['width'] = $width;
             $banner['height'] = $height;
+            $file = IA_UPLOADS . $this->_folder . IA_DS . $banner['image'];
 
-            if (move_uploaded_file($_FILES['uploadfile']['tmp_name'], $file))
-            {
+            if (move_uploaded_file($_FILES['uploadfile']['tmp_name'], $file)) {
                 chmod($file, 0755);
-
-                return true;
             }
         }
-
-        return false;
     }
 }

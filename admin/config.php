@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -24,156 +24,142 @@
  *
  ******************************************************************************/
 
-$iaDb->setTable('banners');
-
-$iaBanner = $iaCore->factoryPlugin('banners', iaCore::ADMIN, 'banner');
-$allowedAction = ['add_block', 'remove_block', 'save_block'];
-$configAction = isset($_GET['action']) && in_array($_GET['action'], $allowedAction) ? $_GET['action'] : '';
-
-if (iaView::REQUEST_JSON == $iaView->getRequestType())
+class iaBackendController extends iaAbstractControllerModuleBackend
 {
-	$out = ['msg' => '', 'error' => true];
-	$id = isset($_GET['id']) && !empty($_GET['id']) ? intval($_GET['id']) : 0;
+    const ADD = 'add_block';
+    const REMOVE = 'remove_block';
+    const SAVE = 'save_block';
 
-	if ('remove_block' == $configAction && $id)
-	{
-		$iaBlock = $iaCore->factory('block', iaCore::ADMIN);
+    protected $_name = 'banners';
+    protected static $_tableBlockOptions = 'banners_block_options';
 
-		if (!$iaBlock->delete($id))
-		{
-			$out['error'] = true;
-			$out['msg'] = iaLanguage::get('block_did_not_delete');
-		}
-		else
-		{
-			$iaDb->setTable('banners_block_options');
-			$iaDb->delete("`block_id` = '$id'");
-			$iaDb->resetTable();
 
-			$out['error'] = false;
-		}
-	}
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setHelper($this->_iaCore->factoryModule('banner', $this->getModuleName()));
+    }
 
-	if ('save_block' == $configAction && $id)
-	{
-		$fields = [
-			'amount' => isset($_GET['amount']) ? intval($_GET['amount']) : 0,
-			'amount_displayed' => isset($_GET['amount_displayed']) ? intval($_GET['amount_displayed']) : 0,
-			'width' => isset($_GET['width']) ? intval($_GET['width']) : 0,
-			'height' => isset($_GET['height']) ? intval($_GET['height']) : 0,
-			'slider' => isset($_GET['slider']) ? intval($_GET['slider']) : 0
-		];
+    protected function _gridRead($params)
+    {
+        $output = ['msg' => '', 'error' => true];
+        $id = isset($params['id']) && !empty($params['id']) ? intval($params['id']) : 0;
 
-		if ($fields['amount'] < $fields['amount_displayed'])
-		{
-			$out['error'] = true;
-			$out['msg'] = iaLanguage::get('amount_max_less_displayed');
-		}
-		else
-		{
-			$iaDb->setTable('banners_block_options');
-			$iaDb->update($fields, "`block_id` = '$id'");
-			$iaDb->resetTable();
+        if (self::REMOVE == $params['action'] && $id) {
+            $iaBlock = $this->_iaCore->factory('block', iaCore::ADMIN);
 
-			$out['error'] = false;
-			$out['msg'] = iaLanguage::get('block_updated');
-		}
-	}
+            if (!$iaBlock->delete($id)) {
+                $output['error'] = true;
+                $output['msg'] = iaLanguage::get('block_did_not_delete');
+            } else {
+                $this->_iaDb->delete(iaDb::convertIds($id, 'block_id'), self::$_tableBlockOptions);
 
-	if (empty($out['data']))
-	{
-		$out['data'] = '';
-	}
+                $output['error'] = false;
+            }
+        }
 
-	$iaView->assign($out);
-}
+        if (self::SAVE == $params['action'] && $id) {
+            $fields = [
+                'amount' => isset($params['amount']) ? intval($params['amount']) : 0,
+                'amount_displayed' => isset($params['amount_displayed']) ? intval($params['amount_displayed']) : 0,
+                'width' => isset($params['width']) ? intval($params['width']) : 0,
+                'height' => isset($params['height']) ? intval($params['height']) : 0,
+                'slider' => isset($params['slider']) ? intval($params['slider']) : 0
+            ];
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	iaBreadcrumb::add(iaLanguage::get('banners_blocks_manage'), IA_ADMIN_URL . 'banners/config/');
+            if ($fields['amount'] < $fields['amount_displayed']) {
+                $output['error'] = true;
+                $output['msg'] = iaLanguage::get('amount_max_less_displayed');
+            } else {
+                $this->_iaDb->update($fields, iaDb::convertIds($id, 'block_id'), null, self::$_tableBlockOptions);
 
-	$position = isset($_GET['pos']) && !empty($_GET['pos']) ? ($_GET['pos']) : false;
-	$title = isset($_GET['title']) && !empty($_GET['title']) ? ($_GET['title']) : '';
-	$num = isset($_GET['num']) && !empty($_GET['num']) ? intval($_GET['num']) + 1 : 1;
+                $output['error'] = false;
+                $output['msg'] = iaLanguage::get('block_updated');
+            }
+        }
 
-	if ('add_block' == $configAction && $position)
-	{
-		$iaBlock = $iaCore->factory('block', iaCore::ADMIN);
+        return $output;
+    }
 
-		$block = [
-			'name' => 'banner_block_' . $position . '_' . $num,
-			'position' => $position,
-			'type' => 'smarty',
-			'status' => iaCore::STATUS_ACTIVE,
-			'header' => 1,
-			'collapsible' => 1,
-			'sticky' => 1,
-			'title' => $title,
-			'external' => 1,
-			'filename' => 'extra:banners/render-banners',
-			'module' => 'banners'
-		];
+    protected function _indexPage(&$iaView)
+    {
+        $action = empty($_GET['action']) ? '' : $_GET['action'];
 
-		$id = $iaBlock->insert($block);
+        $position = empty($_GET['pos']) ? null : $_GET['pos'];
+        $title = empty($_GET['title']) ? '' : $_GET['title'];
+        $num = empty($_GET['num']) ? 1 : intval($_GET['num']) + 1;
 
-		$fields = [
-			'amount' => 1,
-			'amount_displayed' => 1,
-			'width' => 360,
-			'height' => 360,
-			'block_id' => $id,
-		];
+        if (self::ADD == $action && $position) {
+           $this->_addBlock($position, $num, $title);
+        }
 
-		$iaDb->setTable('banners_block_options');
-		$iaDb->insert($fields);
-		$iaDb->resetTable();
+        $positions = $this->_iaDb->onefield('name', '`menu` = 0', null, null, 'positions');
+        $this->_iaCore->iaView->assign('positions', $positions);
+        $blocks = [];
 
-		iaCore::util();
-		iaUtil::go_to(IA_ADMIN_URL . IA_CURRENT_MODULE . '/config/#position-' . $position);
-	}
-
-	$positions = $iaDb->onefield('name', '`menu` = 0', null, null, 'positions');
-
-	$iaView->assign('positions', $positions);
-	$blocks = [];
-
-	$iaDb->setTable('blocks');
-	foreach ($positions as $pos)
-	{
-		$sql = <<<SQL
-SELECT b.*, l.`value` AS `title` FROM `:prefix:table_blocks` b 
-LEFT JOIN `:prefix:table_language` l ON (l.`key` = CONCAT("block_title_", b.`id`)) 
-WHERE b.`position` = ":postition" AND b.`module` = ":module"
+        foreach ($positions as $position) {
+            $sql = <<<SQL
+SELECT b.*, l.`value` `title` FROM `:prefix:table_blocks` b 
+LEFT JOIN `:prefix:table_language` l ON (l.`key` = CONCAT('block_title_', b.`id`)) 
+WHERE b.`position` = ':position' AND b.`module` = ':module'
 SQL;
-		$sql = iaDb::printf($sql, [
-				'prefix' => $this->iaDb->prefix,
-				'table_blocks' => 'blocks',
-				'table_language' => 'language',
-				'postition' => $pos,
-				'module' => 'banners'
-		]);
-		$b = $iaDb->getAll($sql);
-		if ($b)
-		{
-			$blocks[$pos] = $b;
-		}
-	}
-	$iaDb->resetTable();
+            $sql = iaDb::printf($sql, [
+                'prefix' => $this->_iaDb->prefix,
+                'table_blocks' => 'blocks',
+                'table_language' => iaLanguage::getTable(),
+                'position' => $position,
+                'module' => $this->getModuleName()
+            ]);
+            $block = $this->_iaDb->getAll($sql);
+            if ($block) {
+                $blocks[$position] = $block;
+            }
+        }
 
-	$iaDb->setTable('banners_block_options');
-	$options = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION);
-	$iaDb->resetTable();
+        $this->_iaDb->setTable(self::$_tableBlockOptions);
+        $options = $this->_iaDb->all(iaDb::ALL_COLUMNS_SELECTION);
+        $this->_iaDb->resetTable();
 
-	$blockOptions = [];
-	foreach ($options as $option)
-	{
-		$blockOptions[$option['block_id']] = $option;
-	}
+        $blockOptions = [];
+        foreach ($options as $option) {
+            $blockOptions[$option['block_id']] = $option;
+        }
 
-	$iaView->assign('blocks_options', $blockOptions);
-	$iaView->assign('banner_blocks', $blocks);
+        $iaView->assign('blocks_options', $blockOptions);
+        $iaView->assign('banner_blocks', $blocks);
+        $iaView->display('config');
+    }
 
-	$iaView->display('config');
+    protected function _addBlock($position, $num, $title)
+    {
+        $iaBlock = $this->_iaCore->factory('block', iaCore::ADMIN);
+
+        $block = [
+            'name' => 'banner_block_' . $position . '_' . $num,
+            'position' => $position,
+            'type' => 'smarty',
+            'status' => iaCore::STATUS_ACTIVE,
+            'header' => 1,
+            'collapsible' => 1,
+            'sticky' => 1,
+            'title' => $title,
+            'external' => 1,
+            'filename' => 'extra:banners/render-banners',
+            'module' => 'banners'
+        ];
+
+        $id = $iaBlock->insert($block);
+
+        $fields = [
+            'amount' => 1,
+            'amount_displayed' => 1,
+            'width' => 360,
+            'height' => 360,
+            'block_id' => $id,
+        ];
+        $this->_iaDb->insert($fields, null, self::$_tableBlockOptions);
+
+        iaCore::util();
+        iaUtil::go_to(IA_ADMIN_URL . IA_CURRENT_MODULE . '/config/#position-' . $position);
+    }
 }
-
-$iaDb->resetTable();
