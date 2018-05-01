@@ -24,18 +24,15 @@
  *
  ******************************************************************************/
 
-if (iaView::REQUEST_JSON == $iaView->getRequestType())
-{
-	if (isset($_GET['id']) && ($_GET['id'] || !preg_match('#\D#', $_GET['id']) || ((int)$_GET['id']) > 0))
-	{
-		$id = (int)$_GET['id'];
-		$ip = $iaCore->util()->getIp();
+if (iaView::REQUEST_JSON == $iaView->getRequestType()) {
+    if (isset($_GET['id']) && ($_GET['id'] || !preg_match('#\D#', $_GET['id']) || ((int)$_GET['id']) > 0)) {
+        $id = (int)$_GET['id'];
+        $ip = $iaCore->util()->getIp();
 
-		$iaBanner = $iaCore->factoryModule('banner', IA_CURRENT_MODULE, iaCore::FRONT);
+        $iaBanner = $iaCore->factoryModule('banner', IA_CURRENT_MODULE, iaCore::FRONT);
 
-		if (!$iaBanner->checkClick($id, $ip))
-		{
-			$iaBanner->click($id, $ip);
-		}
-	}
+        if (!$iaBanner->checkClick($id, $ip)) {
+            $iaBanner->click($id, $ip);
+        }
+    }
 }

@@ -64,14 +64,13 @@ class iaBanner extends abstractModuleAdmin
 
     public function delete($id)
     {
-
         $banner = $this->getById($id);
         if ('flash' == $banner['type']) {
             $file = IA_UPLOADS . $this->_folder . IA_DS . $banner['image'];
             if (is_file($file)) {
                 unlink($file);
             }
-       } elseif ('image' == $banner['type']) {
+        } elseif ('image' == $banner['type']) {
             list($folder, $image) = explode('|', $banner['image']);
             foreach (['large', 'original', 'thumbnail'] as $size) {
                 $file = IA_UPLOADS . $folder . $size . IA_DS . $image;
@@ -80,7 +79,6 @@ class iaBanner extends abstractModuleAdmin
                 }
             }
         }
-
         $this->iaDb->delete('`banner_id` = :id', 'banner_clicks', ['id' => $id]);
 
         return true;

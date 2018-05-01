@@ -24,100 +24,104 @@
  *
  ******************************************************************************/
 
-final class iaBanner extends abstractModuleFront
+class iaBanner extends abstractModuleFront
 {
-	protected static $_table = 'banners';
+    protected static $_table = 'banners';
+    protected static $_tableClicks = 'banner_clicks';
+    protected static $_tableBlockOptions = 'banners_block_options';
 
-	protected static $_tableBlockOptions = 'banners_block_options';
 
+    public static function getTableBlockOptions()
+    {
+        return self::$_tableBlockOptions;
+    }
 
-	public static function getTableBlockOptions ()
-	{
-		return self::$_tableBlockOptions;
-	}
+    /**
+     * Return sorted array with all banners
+     * @return array|bool
+     */
+    public function getBanners()
+    {
+        $rows = $this->iaDb->all(iaDb::ALL_COLUMNS_SELECTION, "`status` = 'active'", null, null, self::getTable());
 
-	/**
-	 * Return sorted array with all banners
-	 * @return array|bool
-	 */
-	public function getBanners()
-	{
-		$rows = $this->iaDb->all(iaDb::ALL_COLUMNS_SELECTION, "`status` = 'active'", null, null, self::getTable());
+        if (is_array($rows) && $rows) {
+            $banners = [];
+            foreach ($rows as $entry) {
+                $banners[$entry['position']][] = $entry;
+            }
 
-		if (is_array($rows) && $rows)
-		{
-			$banners = [];
-			foreach ($rows as $entry)
-			{
-				$banners[$entry['position']][] = $entry;
-			}
+            return $banners;
+        }
 
-			return $banners;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    /**
+     * Return sorted array with all banners
+     * @return array|bool
+     */
+    public function getAmountDisplayed()
+    {
+        return $this->iaDb->keyvalue(['block_id', 'amount_displayed'], null, self::getTableBlockOptions());
+    }
 
-	/**
-	 * Return sorted array with all banners
-	 * @return array|bool
-	 */
-	public function getAmountDisplayed()
-	{
-		return $this->iaDb->keyvalue(['block_id', 'amount_displayed'], null, self::getTableBlockOptions());
-	}
+    /**
+     * Used by banner router to increase number of clicks
+     *
+     * @param $bannerId int
+     * @param $ipAddress string
+     * @return bool
+     */
+    public function click($bannerId, $ipAddress)
+    {
+        $values = [
+            'banner_id' => $bannerId,
+            'ip' => $ipAddress
+        ];
+        $this->iaDb->insert($values, ['date' => iaDb::FUNCTION_NOW], self::$_tableClicks);
+        $this->iaDb->query([], iaDb::convertIds($bannerId), ['clicked' => '`clicked` + 1'], self::getTable());
 
-	/**
-	* Used by banner router to increase number of clicks
-	*
-	* @param int $bId
-	* @param $aIp str
-	*
-	* @return bool
-	*/
-	public function click($bannerId, $ipAddress)
-	{
-		$row = [
-			'banner_id' => $bannerId,
-			'ip' => $ipAddress
-		];
-		$this->iaDb->insert($row, ['date' => iaDb::FUNCTION_NOW], 'banner_clicks');
-		$this->iaDb->query("UPDATE `" . self::getTable(true) . "` SET `clicked` = `clicked` + 1 WHERE `id`='" . $bannerId . "'");
+        return true;
+    }
 
-		return true;
-	}
+    /**
+     * Checks if a link was already clicked
+     *
+     * @param $bannerId int
+     * @param $ipAddress string
+     * @return int
+     */
+    public function checkClick($bannerId, $ipAddress)
+    {
+        $sql = <<<SQL
+SELECT `id`
+FROM `:prefix:table_clicks`
+WHERE `ip` = ':ip'
+AND `banner_id` = ':banner_id'
+AND (TO_DAYS(NOW()) - TO_DAYS(`date`)) <= 1
+SQL;
 
-	/**
-	* Checks if a link was already clicked
-	*
-	* @param int $aId banner id
-	* @param str $aIp ip address
-	*
-	*
-	* @return int
-	*/
-	public function checkClick($bannerId, $ipAddress)
-	{
-		$sql = "SELECT `id`
-			FROM `" . $this->iaDb->prefix . "banner_clicks`
-			WHERE `ip` = '" . $ipAddress . "'
-				AND `banner_id` = '" . $bannerId . "'
-				AND (TO_DAYS(NOW()) - TO_DAYS(`date`)) <= 1 ";
+        $sql = iaDb::printf($sql, [
+            'prefix' => $this->iaDb->prefix,
+            'table_clicks' => self::$_tableClicks,
+            'ip' => $ipAddress,
+            'banner_id' => $bannerId,
+        ]);
 
-		return $this->iaDb->getOne($sql);
-	}
+        return $this->iaDb->getOne($sql);
+    }
 
-	/**
-	 * Count banners impressions
-	 *
-	 * @param $params arr
-	 *
-	 * @return void
-	 */
-	public static function impressionsCount($params)
-	{
-		$id = $params['id'];
-		$iaCore = iaCore::instance();
-		$iaCore->iaDb->update([], "`id` = '$id'", ['showed' => "`showed` + '1'"], self::getTable());
-	}
+    /**
+     * Count banners impressions
+     *
+     * @param $params array
+     *
+     * @return void
+     */
+    public static function impressionsCount(array $params)
+    {
+        $id = $params['id'];
+        $iaCore = iaCore::instance();
+        $iaCore->iaDb->update([], iaDb::convertIds($id), ['showed' => "`showed` + 1"], self::getTable());
+    }
 }

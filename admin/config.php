@@ -90,7 +90,7 @@ class iaBackendController extends iaAbstractControllerModuleBackend
         $num = empty($_GET['num']) ? 1 : intval($_GET['num']) + 1;
 
         if (self::ADD == $action && $position) {
-           $this->_addBlock($position, $num, $title);
+            $this->_addBlock($position, $num, $title);
         }
 
         $positions = $this->_iaDb->onefield('name', '`menu` = 0', null, null, 'positions');
@@ -144,8 +144,8 @@ SQL;
             'sticky' => 1,
             'title' => $title,
             'external' => 1,
-            'filename' => 'extra:banners/render-banners',
-            'module' => 'banners'
+            'filename' => 'module:banners/render-banners',
+            'module' => $this->getModuleName()
         ];
 
         $id = $iaBlock->insert($block);

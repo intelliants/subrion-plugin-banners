@@ -30,8 +30,7 @@ class iaBackendController extends iaAbstractControllerModuleBackend
     protected $_name = 'banners';
 
     protected $_table = 'banners';
-    protected $_tableClicks = 'banners_clicks';
-    protected $_tableBlockOptions = 'banners_block_options';
+    protected static $_tableBlockOptions = 'banners_block_options';
     protected $_phraseAddSuccess = 'banner_added';
     protected $_phraseGridEntryDeleted = 'banner_deleted';
 
@@ -67,7 +66,7 @@ LIMIT :start, :limit
 SQL;
         $sql = iaDb::printf($sql, [
             'prefix' => $this->_iaDb->prefix,
-            'table_banners' => self::getTable(true),
+            'table_banners' => self::getTable(),
             'table_blocks' => 'blocks',
             'where' => $where,
             'start' => $start,
@@ -130,7 +129,7 @@ SQL;
         $sql = iaDb::printf($sql, [
             'prefix' => $this->_iaDb->prefix,
             'table_blocks' => 'blocks',
-            'table_options' => 'banners_block_options',
+            'table_options' => self::$_tableBlockOptions,
             'table_banners' => self::getTable(),
             'table_language' => iaLanguage::getTable(),
             'module' => self::getModuleName(),
@@ -266,14 +265,6 @@ SQL;
         } elseif ('flash' == $entry['type']) {
             $this->getHelper()->updateFlash($entry);
         }
-
-        /*
-        if (!iaValidate::isUrl($entry['url']) && 'html' != $banner['type'])
-        {
-            $error = true;
-            $messages = iaLanguage::get('banner_url_incorrect');
-        }
-        */
 
         return !$this->getMessages();
     }

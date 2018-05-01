@@ -23,7 +23,7 @@
                                     <embed src="{ia_print_img fl=$item.image folder=$folder ups='true'}" quality="high"
                                            pluginspage="http://www.macromedia.com/go/getflashplayer"
                                            type="application/x-shockwave-flash" width="{$item.width}"
-                                           height="{$item.height}"></embed>
+                                           height="{$item.height}">
                                 </object>
                             {/if}
                         </div>

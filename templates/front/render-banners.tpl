@@ -7,7 +7,7 @@
 				<div class="ia-carousel__item">
 					{if $banner.type == 'image'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
-							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}"{if $banner.no_follow} rel="nofollow"{/if}>
+							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" rel="{if '_blank' == $banner.target}noopener noreferrer{/if}{if $banner.no_follow} nofollow{/if}">
 								{ia_image file=$banner.image title=$banner.title type='large'}
 							</a>
 						{else}
@@ -18,11 +18,11 @@
 							<param name="movie" value="{ia_print_img folder=$folder fl=$banner.image ups='true'}">
 							<param name="quality" value="high">
 							<param name="wmode" value="transparent">
-							<embed src="{ia_print_img folder=$folder fl=$banner.image ups='true'}" quality="high" pluginspage=" http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" {if $banner.width != 0 and $banner.height != 0}width="{$banner.width}" height="{$banner.height}"{/if}></embed>
+							<embed src="{ia_print_img folder=$folder fl=$banner.image ups='true'}" quality="high" pluginspage=" http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" {if $banner.width != 0 and $banner.height != 0}width="{$banner.width}" height="{$banner.height}"{/if}>
 						</object>
 					{elseif $banner.type == 'remote'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
-							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" {if $banner.no_follow}rel="nofollow"{/if}>
+							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" rel="{if '_blank' == $banner.target}noopener noreferrer{/if}{if $banner.no_follow} nofollow{/if}">
 								<img src="{$banner.image}" alt="{$banner.alt}" title="{$banner.title}" {if $banner.width != 0 and $banner.height != 0}style="width:{$banner.width};height:{$banner.height}px"{/if}>
 							</a>
 						{else}
@@ -32,7 +32,7 @@
 						{$banner.content}
 					{elseif $banner.type == 'text'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
-							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" {if $banner.no_follow}rel="nofollow"{/if}>
+							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" rel="{if '_blank' == $banner.target}noopener noreferrer{/if}{if $banner.no_follow} nofollow{/if}">
 								{$banner.planetext_content|escape:"html"}
 							</a>
 						{else}
@@ -69,7 +69,7 @@ $(function() {
 				<div class="p-b">
 					{if $banner.type == 'image'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
-							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}"{if $banner.no_follow} rel="nofollow"{/if}>
+							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" rel="{if '_blank' == $banner.target}noopener noreferrer{/if}{if $banner.no_follow} nofollow{/if}">
 								{ia_image file=$banner.image title=$banner.title type='large'}
 							</a>
 						{else}
@@ -84,7 +84,7 @@ $(function() {
 						</object>
 					{elseif $banner.type == 'remote'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
-							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" {if $banner.no_follow}rel="nofollow"{/if}>
+							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" rel="{if '_blank' == $banner.target}noopener noreferrer{/if}{if $banner.no_follow} nofollow{/if}">
 								<img src="{$banner.image}" alt="{$banner.alt}" title="{$banner.title}" {if $banner.width != 0 and $banner.height != 0}style="width:{$banner.width};height:{$banner.height}px"{/if}>
 							</a>
 						{else}
@@ -94,7 +94,7 @@ $(function() {
 						{$banner.content}
 					{elseif $banner.type == 'text'}
 						{if !empty($banner.url) && 'http://' != $banner.url}
-							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" {if $banner.no_follow}rel="nofollow"{/if}>
+							<a id="b{$banner.id}" href="{$banner.url}" target="{$banner.target}" rel="{if '_blank' == $banner.target}noopener noreferrer{/if}{if $banner.no_follow} nofollow{/if}">
 								{$banner.planetext_content|escape:"html"}
 							</a>
 						{else}
