@@ -144,7 +144,7 @@ SQL;
             'sticky' => 1,
             'title' => $title,
             'external' => 1,
-            'filename' => 'module:banners/render-banners',
+            'filename' => 'module:banners/render-banners.tpl',
             'module' => $this->getModuleName()
         ];
 
