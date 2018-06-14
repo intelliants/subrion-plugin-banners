@@ -261,7 +261,7 @@ SQL;
         }
 
         if ('image' == $entry['type']) {
-            $this->getHelper()->updateImage($entry);
+            $this->getHelper()->updateImage($entry, $this->getEntryId());
         } elseif ('flash' == $entry['type']) {
             $this->getHelper()->updateFlash($entry);
         }

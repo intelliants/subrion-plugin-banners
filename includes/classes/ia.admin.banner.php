@@ -84,12 +84,13 @@ class iaBanner extends abstractModuleAdmin
         return true;
     }
 
-    public function updateImage(&$banner)
+    public function updateImage(&$banner, $id)
     {
+
         if (isset($_FILES['uploadfile']['error']) && !$_FILES['uploadfile']['error']) {
             $iaField = $this->iaCore->factory('field');
             $this->iaCore->factory('picture');
-            empty($banner['image']) || $iaField->deleteUploadedFile('image', self::getTable(), $banner['id'],
+            empty($banner['image']) || $iaField->deleteUploadedFile('image', self::getTable(), $id,
                 $banner['image']);
 
             $path = $iaField->uploadImage($_FILES['uploadfile'], $banner['width'],
